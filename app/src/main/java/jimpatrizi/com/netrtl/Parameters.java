@@ -8,7 +8,7 @@ import java.util.List;
  */
 
 public enum Parameters {
-    FREQUENCY("FREQUENCY"), ATAN_MATH("ATAN_MATH"), SAMPLE_RATE("SAMPLE_RATE");
+    FREQUENCY("FREQUENCY"), BROADCAST_FM("BROADCAST_FM"), SAMPLE_RATE("SAMPLE_RATE"), ATAN_MATH("ATAN_MATH");
 
     private final String FUNCTION;
     private final List<String> values;

@@ -16,6 +16,11 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 /**
  * MainActivity of the NetRTL Android Application.
  * @author Jim Patrizi
@@ -30,7 +35,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        //included with project creation
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -42,37 +47,32 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        //end included with project creation
 
+        //Init Execute button
+        try {
+            executeButtonInit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //In Modulation Mode Spinner
+        spinnerInit();
+
+        //Init Buttons
+        buttonInit();
+
+    }
+
+    /**
+     * This executeButtonInit method sets the click listener on the execute button
+     * @return Nothing
+     */
+    public void executeButtonInit() throws IOException {
         Button executeButton = (Button) findViewById(R.id.execute);
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        executeButton.setOnClickListener(new View.OnClickListener() {//make executeButtonOnClickListen
-            @Override
-            public void onClick(View v){
-                Parameters.ATAN_MATH.append("Ben Sucks 69Hz");
-                Parameters.ATAN_MATH.append("Ben Sucks ATAN MATH BALLS");
-                Parameters.ATAN_MATH.append("Ben Sucks at 100MS/s");
-                String dameon = "";
-                for (Parameters p : Parameters.values())
-                {
-                    //if i want to mess with sockets, later, do socket shit here
-                    for(String s : p.getDameonCallableStrings()){
-                        dameon += s;
-                        dameon += "\n";
-                    }
-                    p.resetValues();
-                }
-                Toast.makeText(getApplicationContext(), dameon, Toast.LENGTH_LONG).show();
-            }
-        });
-
-
-        //Create Modulation Mode Spinner
-        spinnerInit();
-
-        //init Buttons
-        buttonInit();
-
+        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext()));
     }
 
     /**
@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity
         decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext()));
     }
 
+//included with project creation
+    //included code below came with Navigation Pullout Activity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -183,6 +185,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
+//end of included project creation methods
 
 }
