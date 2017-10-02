@@ -151,12 +151,12 @@
         android:text="-1kHz"
         android:textAppearance="@style/TextAppearance.AppCompat"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBaseline_toBaselineOf="@+id/n10hz"
+        app:layout_constraintBaseline_toBaselineOf="@+id/n10khz"
         tools:layout_constraintBaseline_creator="1"
-        app:layout_constraintRight_toLeftOf="@+id/n10hz" />
+        app:layout_constraintRight_toLeftOf="@+id/n10khz" />
 
     <Button
-        android:id="@+id/n10hz"
+        android:id="@+id/n10khz"
         android:layout_width="88dp"
         android:layout_height="wrap_content"
         android:text="-10kHz"
@@ -185,7 +185,7 @@
         android:layout_height="wrap_content"
         android:text="-100kHz"
         android:textAppearance="@style/TextAppearance.AppCompat"
-        app:layout_constraintLeft_toRightOf="@+id/n10hz"
+        app:layout_constraintLeft_toRightOf="@+id/n10khz"
         tools:layout_constraintTop_creator="1"
         app:layout_constraintTop_toBottomOf="@+id/p100khz"
         app:layout_constraintRight_toLeftOf="@+id/n10mhz"

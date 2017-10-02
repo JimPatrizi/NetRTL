@@ -16,6 +16,12 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+/**
+ * MainActivity of the NetRTL Android Application.
+ * @author Jim Patrizi
+ * @version 1.0
+ * @since 2017-10-02
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -23,9 +29,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity
                 String dameon = "";
                 for (Parameters p : Parameters.values())
                 {
-                    //if i want to fuck with sockets, later, do socket shit here
+                    //if i want to mess with sockets, later, do socket shit here
                     for(String s : p.getDameonCallableStrings()){
                         dameon += s;
                         dameon += "\n";
@@ -59,31 +66,66 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //make this into a class
 
         //Create Modulation Mode Spinner
-        String[] modeSpinner = new String[] {
+        spinnerInit();
+
+        //init Buttons
+        buttonInit();
+
+    }
+
+    /**
+     * This spinnerInit method gets the spinner id from content_main.xml,
+     * populates spinner with WBFM, AM, USB, LSB
+     * @return Nothing
+     */
+    public void spinnerInit(){
+        //init spinner from id
+        Spinner spin = (Spinner) findViewById(R.id.modeSpinner);
+        //spinner strings to populate spinner object
+        String[] modeSpinnerStrings = new String[] {
                 "WBFM", "AM", "USB", "LSB"
         };
-        Spinner s = (Spinner) findViewById(R.id.modeSpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, modeSpinner);
-        s.setAdapter(adapter);
+        //set array adapter to set the strings inside spinner obect
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, modeSpinnerStrings);
+        spin.setAdapter(adapter);
+        //formats spinner to be nice clickable size
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //end spinner
+    }
 
+    /**
+     * Initializes buttons with click listeners for their respective values in the FREQUENCY Parameter,
+     * Buttons include +/- 1k, 10k, 100k, 10MHz
+     * @return Nothing.
+     */
+    public void buttonInit() {
 
-        //put below inits inside a function and call
         Button increment1KHZ = (Button) findViewById(R.id.p1khz);
         increment1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(1000, getApplicationContext()));
+
+        Button decrement1KHZ = (Button) findViewById(R.id.n1khz);
+        decrement1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-1000, getApplicationContext()));
 
         Button increment10KHZ = (Button) findViewById(R.id.p10khz);
         increment10KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(10000, getApplicationContext()));
 
-        Button decrement1KHZ = (Button) findViewById(R.id.n1khz);
-        decrement1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-1000, getApplicationContext()));
-    }
+        Button decrement10KHZ = (Button) findViewById(R.id.n10khz);
+        decrement10KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000, getApplicationContext()));
 
+        Button increment100KHZ = (Button) findViewById(R.id.p100khz);
+        increment100KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(100000, getApplicationContext()));
+
+        Button decrement100KHZ = (Button) findViewById(R.id.n100khz);
+        decrement100KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-100000, getApplicationContext()));
+
+        Button increment10MHZ = (Button) findViewById(R.id.p10mhz);
+        increment10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(10000000, getApplicationContext()));
+
+        Button decrement10MHZ = (Button) findViewById(R.id.n10mhz);
+        decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext()));
+    }
 
     @Override
     public void onBackPressed() {
