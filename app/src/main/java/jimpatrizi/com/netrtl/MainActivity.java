@@ -30,6 +30,8 @@ import java.net.UnknownHostException;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    SDRClient client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,36 +45,39 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         //end included with project creation
 
-        //Init Execute button
-        try {
-            executeButtonInit();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+       // connectSocketAndInitStream();
 
+        //Init Execute button
+        executeButtonInit();
         //In Modulation Mode Spinner
         spinnerInit();
-
         //Init Buttons
         buttonInit();
 
+
+    }
+
+    public void connectSocketAndInitStream()
+    {
+        client = new SDRClient("192.168.0.19", 2832);
+        client.connectToSocket();
+        client.initializeStream();
     }
 
     /**
      * This executeButtonInit method sets the click listener on the execute button
      * @return Nothing
      */
-    public void executeButtonInit() throws IOException {
+    public void executeButtonInit(){
         Button executeButton = (Button) findViewById(R.id.execute);
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext()));
+        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), client));
+        //client.sendMessageToServer("HELP");
     }
 
     /**
