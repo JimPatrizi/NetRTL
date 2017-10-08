@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public AsyncConnection connection;
-    public AsyncRunnable runnable;
 
     private String TAG = getClass().getName();
     ConnectionHandler handler = new ConnectionHandler() {
