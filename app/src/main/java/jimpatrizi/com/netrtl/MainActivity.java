@@ -7,6 +7,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +31,26 @@ import java.net.UnknownHostException;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    SDRClient client;
+    public AsyncConnection connection;
+    public AsyncRunnable runnable;
+
+    private String TAG = getClass().getName();
+    ConnectionHandler handler = new ConnectionHandler() {
+        @Override
+        public void didReceiveData(String data) {
+            Log.d(TAG, data);
+        }
+
+        @Override
+        public void didDisconnect(Exception error) {
+            Log.d(TAG, "Disconnected");
+        }
+
+        @Override
+        public void didConnect() {
+            Log.d(TAG, "Connected to Socket");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +69,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         //end included with project creation
 
-       // connectSocketAndInitStream();
+
+        connection = new AsyncConnection("192.168.0.19", 2832, 100, handler);
+        connection.execute();
 
         //Init Execute button
         executeButtonInit();
@@ -58,15 +80,8 @@ public class MainActivity extends AppCompatActivity
         //Init Buttons
         buttonInit();
 
-
     }
 
-    public void connectSocketAndInitStream()
-    {
-        client = new SDRClient("192.168.0.19", 2832);
-        client.connectToSocket();
-        client.initializeStream();
-    }
 
     /**
      * This executeButtonInit method sets the click listener on the execute button
@@ -76,8 +91,7 @@ public class MainActivity extends AppCompatActivity
         Button executeButton = (Button) findViewById(R.id.execute);
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), client));
-        //client.sendMessageToServer("HELP");
+        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), connection));
     }
 
     /**
@@ -190,6 +204,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-//end of included project creation methods
-
 }

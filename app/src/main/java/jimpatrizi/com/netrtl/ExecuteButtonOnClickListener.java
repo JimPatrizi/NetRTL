@@ -10,13 +10,14 @@ import android.widget.Toast;
 
 public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
-    private SDRClient client;
+    public AsyncConnection connection;
 
 
-    ExecuteButtonOnClickListener(Context context, SDRClient client){
+    ExecuteButtonOnClickListener(Context context, AsyncConnection connection){
         this.context = context;
-        this.client = client;
+        this.connection = connection;
     }
+
 
     @Override
     public void onClick(View view) {
@@ -34,5 +35,12 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
             p.resetValues();
         }
         Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+            connection.write("HELP");
+            }
+        }).start();
     }
 }
