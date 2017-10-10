@@ -33,23 +33,8 @@ public class MainActivity extends AppCompatActivity
 
     public AsyncConnection connection;
 
-    private String TAG = getClass().getName();
-    ConnectionHandler handler = new ConnectionHandler() {
-        @Override
-        public void didReceiveData(String data) {
-            Log.d(TAG, data);
-        }
-
-        @Override
-        public void didDisconnect(Exception error) {
-            Log.d(TAG, "Disconnected");
-        }
-
-        @Override
-        public void didConnect() {
-            Log.d(TAG, "Connected to Socket");
-        }
-    };
+    //handles logcat messages for socket debugging, will be used to implement UI callback
+    public ConnectionHandle handler = new ConnectionHandle();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +53,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         //end included with project creation
 
-
-        connection = new AsyncConnection("192.168.0.19", 2832, 100, handler);
+        //Open socket with AsyncTask (Background Thread) with timeout of 10
+        connection = new AsyncConnection("192.168.0.19", 2832, 10, handler);
         connection.execute();
+        //end of open socket routine
 
         //Init Execute button
         executeButtonInit();
