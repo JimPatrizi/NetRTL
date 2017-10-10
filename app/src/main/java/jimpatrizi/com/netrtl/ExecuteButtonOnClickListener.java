@@ -36,6 +36,7 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
         }
         Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
 
+        //TODO make class for thread that does all of this with asyncconnection
         new Thread(new Runnable() {
             @Override
             public void run() {
