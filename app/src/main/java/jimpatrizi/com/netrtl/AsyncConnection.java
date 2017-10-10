@@ -143,6 +143,8 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
             Log.e(TAG, "doInBackground(): " + ex.toString());
             error = interrupted ? null : ex;
         } finally {
+            //TODO if this fails, reader and writer never close, try using https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html when you do that, close is called automatically
+            // FIXME: 10/9/2017
             try {
                 socket.close();
                 out.close();
