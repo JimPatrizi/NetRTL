@@ -27,6 +27,7 @@ import java.net.UnknownHostException;
  * @author Jim Patrizi
  * @version 1.0
  * @since 2017-10-02
+ * test branch
  */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
