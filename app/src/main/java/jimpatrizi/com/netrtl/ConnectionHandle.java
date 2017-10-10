@@ -3,7 +3,9 @@ package jimpatrizi.com.netrtl;
 import android.util.Log;
 
 /**
+ * Creates a class to debug asynctask callbacks in logcat
  * Created by Jim Patrizi on 10/9/2017.
+ * @author Jim Patrizi
  */
 
 public class ConnectionHandle implements ConnectionHandler {

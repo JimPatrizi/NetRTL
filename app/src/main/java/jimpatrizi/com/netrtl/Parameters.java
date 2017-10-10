@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Creates enums for all rtlsdrd dameon parameters
  * Created by jamespatrizi on 9/30/17.
+ * @author Jim Patrizi
  */
 
 public enum Parameters {

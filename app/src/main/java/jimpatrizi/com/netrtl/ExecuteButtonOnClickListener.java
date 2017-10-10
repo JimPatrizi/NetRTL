@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 /**
  * Created by Jim Patrizi on 10/2/2017.
+ * This class makes the executebutton listener and creates a thread that writes to daemon
+ * @author Jim Patrizi
  */
 
 public class ExecuteButtonOnClickListener implements View.OnClickListener {
@@ -13,12 +15,21 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
     public AsyncConnection connection;
 
 
+    /**
+     * Constructor that gets the context and passes the asyncconnection class to write data to server
+     * @param context app context
+     * @param connection asyncconnect object passed from main activity
+     */
     ExecuteButtonOnClickListener(Context context, AsyncConnection connection){
         this.context = context;
         this.connection = connection;
     }
 
 
+    /**
+     * When execute is clicked, runs the below code
+     * @param view default
+     */
     @Override
     public void onClick(View view) {
         Parameters.SAMPLE_RATE.append("Ben Sucks at 100MS/s");
