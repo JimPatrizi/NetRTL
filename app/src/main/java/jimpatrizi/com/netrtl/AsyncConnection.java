@@ -24,41 +24,95 @@ import android.util.Log;
  *
  *  if you wish to avoid connection timeout to happen while the application is inactive try to write some meaningless data periodically as a heartbeat.
  *  if you wish to keep the connection alive for longer that the activity  life cycle than consider using services.
- *
+ * @author Jim Patrizi
  *
  */
 public class AsyncConnection extends android.os.AsyncTask<Void, String, Exception> {
-    private String url;
-    private int port;
+
+    /**
+     * IP Addr of Server's socket
+     */
+    private String serverHostname;
+
+    /**
+     * Port number of server's socket
+     */
+    private int portNumber;
+
+    /**
+     * Timeout to connect to server
+     */
     private int timeout;
+
+    /**
+     * Connection Handler to interface with callbacks from server
+     */
     private ConnectionHandler connectionHandler;
 
+    /**
+     * Server's Response sent through here
+     */
     private BufferedReader in;
+
+    /**
+     * App generated server commands sent through here
+     */
     private BufferedWriter out;
+
+    /**
+     * Java socket
+     */
     private Socket socket;
+
+    /**
+     * Flag for  doInBackground() being interrupted via disconnect()
+     */
     private boolean interrupted = false;
 
+    /**
+     * For Logcat debugging
+     */
     private String TAG = getClass().getName();
 
-    public AsyncConnection(String url, int port, int timeout, ConnectionHandler connectionHandler) {
-        this.url = url;
-        this.port = port;
+    /**
+     * Constructor that provides server sockets's IP address and portNumber number
+     * @param serverHostname Server's Hostname
+     * @param portNumber Server socket's port number
+     * @param timeout timeout to connect to server
+     * @param connectionHandler connection handler for callbacks
+     */
+    public AsyncConnection(String serverHostname, int portNumber, int timeout, ConnectionHandler connectionHandler) {
+        this.serverHostname = serverHostname;
+        this.portNumber = portNumber;
         this.timeout = timeout;
         this.connectionHandler = connectionHandler;
     }
 
+    /**
+     * Calls super class onProgressUpdate
+     * @param values
+     */
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
 
+    /**
+     * Calls super onPostExecute, tags result in logcat
+     * @param result
+     */
     @Override
     protected void onPostExecute(Exception result) {
         super.onPostExecute(result);
         Log.d(TAG, "Finished communication with the socket. Result = " + result);
-        //TODO If needed move the didDisconnect(error); method call here to implement it on UI thread.
+        //If needed move the didDisconnect(error); method call here to implement it on UI thread.
     }
 
+    /**
+     * Opens socket and inits Buffered Readers for output and input comms
+     * @param params abstract, not using in this case
+     * @return returns error message for failures
+     */
     @Override
     protected Exception doInBackground(Void... params) {
         Exception error = null;
@@ -66,11 +120,12 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
         try {
             Log.d(TAG, "Opening socket connection.");
             socket = new Socket();
-            socket.connect(new InetSocketAddress(url, port), timeout);
+            socket.connect(new InetSocketAddress(serverHostname, portNumber), timeout);
 
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
+            //calls interfaces didConnect method
             connectionHandler.didConnect();
 
             while(!interrupted) {
@@ -95,10 +150,15 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
             } catch (Exception ex) {}
         }
 
+        //calls interfaces didDisconnect method
         connectionHandler.didDisconnect(error);
         return error;
     }
 
+    /**
+     * Writes data to the server
+     * @param data Singular command to be written to server
+     */
     public void write(final String data) {
         try {
             Log.d(TAG, "writ(): data = " + data);
@@ -111,6 +171,9 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
         }
     }
 
+    /**
+     * Disconnects socket
+     */
     public void disconnect() {
         try {
             Log.d(TAG, "Closing the socket connection.");
