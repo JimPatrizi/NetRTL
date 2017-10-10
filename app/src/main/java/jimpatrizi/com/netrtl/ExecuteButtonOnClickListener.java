@@ -32,8 +32,8 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
      */
     @Override
     public void onClick(View view) {
-        Parameters.SAMPLE_RATE.append("Ben Sucks at 100MS/s");
-        Parameters.ATAN_MATH.append("Ben Sucks 69Hz");
+        Parameters.SAMPLE_RATE.append("Ben thinks at 100MS/s");
+        Parameters.ATAN_MATH.append("Cool");
         Parameters.BROADCAST_FM.append("91.1");
         String dameon = "";
         for (Parameters p : Parameters.values())
