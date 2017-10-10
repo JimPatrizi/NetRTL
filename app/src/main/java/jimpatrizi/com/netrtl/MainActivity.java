@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
         //end included with project creation
 
         //Open socket with AsyncTask (Background Thread) with timeout of 10
-        connection = new AsyncConnection("192.168.0.19", 2832, 10, handler);
+        connection = new AsyncConnection("192.168.0.19", 2832, 100, handler);
         connection.execute();
         //end of open socket routine
 
