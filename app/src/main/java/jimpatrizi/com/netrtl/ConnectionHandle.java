@@ -11,6 +11,7 @@ import android.util.Log;
 public class ConnectionHandle implements ConnectionHandler {
 
     private String TAG = getClass().getName();
+    private String reply;
 
     ConnectionHandle(){
         //empty constructor
@@ -19,6 +20,8 @@ public class ConnectionHandle implements ConnectionHandler {
     @Override
     public void didReceiveData(String data) {
         Log.d(TAG, data);
+        //TODO Notice Logcat has seperate entries, this gets called per line of logcat. Put into a list like Parameters? Need to fix for first reply for OK and for returning all reply lengths
+        reply = data;
     }
 
     @Override
@@ -29,5 +32,10 @@ public class ConnectionHandle implements ConnectionHandler {
     @Override
     public void didConnect() {
         Log.d(TAG, "Connected to Socket");
+    }
+
+    public String getReply()
+    {
+        return reply;
     }
 }

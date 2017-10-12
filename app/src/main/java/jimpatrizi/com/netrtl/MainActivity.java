@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         //end included with project creation
 
-        //Open socket with AsyncTask (Background Thread) with timeout of 10
-        connection = new AsyncConnection("192.168.0.19", 2832, 100, handler);
+        //Open socket with AsyncTask (Background Thread)
+        connection = new AsyncConnection("192.168.0.19", 2832, handler);
         connection.execute();
         //end of open socket routine
 
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
         Button executeButton = (Button) findViewById(R.id.execute);
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), connection));
+        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), connection, handler));
     }
 
     /**

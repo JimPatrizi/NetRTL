@@ -6,36 +6,26 @@ import android.widget.Toast;
 
 /**
  * Created by Jim Patrizi on 10/2/2017.
- * This class makes the executebutton listener and creates a thread that writes to daemon
- * @author Jim Patrizi
  */
 
 public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
     public AsyncConnection connection;
+    String dameon = "";
+    private ConnectionHandle handler;
 
 
-    /**
-     * Constructor that gets the context and passes the asyncconnection class to write data to server
-     * @param context app context
-     * @param connection asyncconnect object passed from main activity
-     */
-    ExecuteButtonOnClickListener(Context context, AsyncConnection connection){
+    ExecuteButtonOnClickListener(Context context, AsyncConnection connection, ConnectionHandle handler){
         this.context = context;
         this.connection = connection;
+        this.handler = handler;
     }
 
 
-    /**
-     * When execute is clicked, runs the below code
-     * @param view default
-     */
     @Override
     public void onClick(View view) {
-        Parameters.SAMPLE_RATE.append("Ben thinks at 100MS/s");
-        Parameters.ATAN_MATH.append("Cool");
         Parameters.BROADCAST_FM.append("91.1");
-        String dameon = "";
+
         for (Parameters p : Parameters.values())
         {
             //if i want to mess with sockets, later, do socket shit here
@@ -45,14 +35,18 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
             }
             p.resetValues();
         }
-        Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
+        //Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
 
         //TODO make class for thread that does all of this with asyncconnection
         new Thread(new Runnable() {
             @Override
             public void run() {
-            connection.write("HELP");
+                connection.write("HELP");
+                //connection.write(dameon);
+                //connection.write("EXECUTE");
             }
         }).start();
+
+        Toast.makeText(context, handler.getReply(), Toast.LENGTH_LONG).show();
     }
 }

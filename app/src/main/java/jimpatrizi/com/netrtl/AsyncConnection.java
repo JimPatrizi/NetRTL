@@ -39,10 +39,6 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      */
     private int portNumber;
 
-    /**
-     * Timeout to connect to server
-     */
-    private int timeout;
 
     /**
      * Connection Handler to interface with callbacks from server
@@ -78,13 +74,11 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      * Constructor that provides server sockets's IP address and portNumber number
      * @param serverHostname Server's Hostname
      * @param portNumber Server socket's port number
-     * @param timeout timeout to connect to server
      * @param connectionHandler connection handler for callbacks
      */
-    public AsyncConnection(String serverHostname, int portNumber, int timeout, ConnectionHandler connectionHandler) {
+    public AsyncConnection(String serverHostname, int portNumber, ConnectionHandler connectionHandler) {
         this.serverHostname = serverHostname;
         this.portNumber = portNumber;
-        this.timeout = timeout;
         this.connectionHandler = connectionHandler;
     }
 
@@ -120,7 +114,7 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
         try {
             Log.d(TAG, "Opening socket connection.");
             socket = new Socket();
-            socket.connect(new InetSocketAddress(serverHostname, portNumber), timeout);
+            socket.connect(new InetSocketAddress(serverHostname, portNumber));
 
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -161,7 +155,7 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      * Writes data to the server
      * @param data Singular command to be written to server
      */
-    public void write(final String data) {
+    public void write(String data) {
         try {
             Log.d(TAG, "writ(): data = " + data);
             out.write(data + "\n");
