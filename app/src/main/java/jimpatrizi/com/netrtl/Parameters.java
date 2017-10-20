@@ -10,15 +10,14 @@ import java.util.List;
  */
 
 public enum Parameters {
-    FREQUENCY("FREQUENCY"), BROADCAST_FM("BROADCAST_FM"), SAMPLE_RATE("SAMPLE_RATE"), ATAN_MATH("ATAN_MATH");
+    FREQUENCY("FREQUENCY"), BROADCAST_FM("BROADCAST_FM"), SAMPLE_RATE("SAMPLE_RATE"), ATAN_MATH("ATAN_MATH"), VOLUME("VOLUME");
 
     private final String FUNCTION;
-    private final List<String> values;
+    private static final List<String> values = new ArrayList<>();
 
     private Parameters(final String function)
     {
         this.FUNCTION = function;
-        values = new ArrayList<>();
     }
 
     public void append(String val)
@@ -31,7 +30,7 @@ public enum Parameters {
         return values.remove(val);
     }
 
-    public void resetValues()
+    public static void resetValues()
     {
         values.clear();
     }

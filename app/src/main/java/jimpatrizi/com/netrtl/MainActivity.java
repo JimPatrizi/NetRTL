@@ -1,5 +1,8 @@
 package jimpatrizi.com.netrtl;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -7,32 +10,29 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
 /**
  * MainActivity of the NetRTL Android Application.
  * @author Jim Patrizi
  * @version 1.0
  * @since 2017-10-02
- * test branch
  */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public AsyncConnection connection;
+    public SeekBar volumeSeekBar;
+
 
     //handles logcat messages for socket debugging, will be used to implement UI callback
     public ConnectionHandle handler = new ConnectionHandle();
@@ -54,8 +54,14 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         //end included with project creation
 
+        //Obtained the previously set IP + Port Preferences
+        Context context = getApplicationContext();
+        SharedPreferences sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
+        String ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
+        int port_number = sharedPrefs.getInt("key_port_name", 2832);
+
         //Open socket with AsyncTask (Background Thread)
-        connection = new AsyncConnection("192.168.0.19", 2832, handler);
+        connection = new AsyncConnection(ip_address, port_number, handler);
         connection.execute();
         //end of open socket routine
 
@@ -65,6 +71,36 @@ public class MainActivity extends AppCompatActivity
         spinnerInit();
         //Init Buttons
         buttonInit();
+
+        //SeekBar Init
+        volumeSeekBar=(SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
+        volumeSeekBar.setMax(100); // 100 maximum value for the Seek bar
+        volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue = 0;
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressChangedValue = progress;
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(MainActivity.this, "System Volume =  " + progressChangedValue + "%",
+                        Toast.LENGTH_SHORT).show();
+
+                if (VOLUME.isIndexValid(0))
+                {
+                    VOLUME.replaceIndex(0, "" +  progressChangedValue);
+                }
+                else
+                {
+                    VOLUME.append("" + progressChangedValue);
+                }
+            }
+        });
+
 
     }
 
@@ -78,6 +114,7 @@ public class MainActivity extends AppCompatActivity
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
         executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), connection, handler));
+        //TODO Make Reconnect button to do connection.execute() if user needs to redefine IP ADDR and PORT. Settings persist after app is closed and reopened to invoke onCreate
     }
 
     /**
@@ -160,6 +197,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // launch settings activity
+            startActivity(new Intent(MainActivity.this, SettingsPrefActivity.class));
             return true;
         }
 

@@ -1,8 +1,12 @@
 package jimpatrizi.com.netrtl;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.View;
-import android.widget.Toast;
+
+import java.lang.reflect.Parameter;
+
+import static jimpatrizi.com.netrtl.Parameters.resetValues;
 
 /**
  * Created by Jim Patrizi on 10/2/2017.
@@ -12,7 +16,9 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
     public AsyncConnection connection;
     String dameon = "";
+    Parameters p;
     private ConnectionHandle handler;
+
 
 
     ExecuteButtonOnClickListener(Context context, AsyncConnection connection, ConnectionHandle handler){
@@ -24,7 +30,9 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Parameters.BROADCAST_FM.append("91.1");
+        //Parameters.BROADCAST_FM.append("97.9");
+
+        SharedPreferences sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
 
         for (Parameters p : Parameters.values())
         {
@@ -33,7 +41,6 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
                 dameon += s;
                 dameon += "\n";
             }
-            p.resetValues();
         }
         //Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
 
@@ -41,12 +48,15 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                connection.write("HELP");
-                //connection.write(dameon);
+                //connection.write("HELP");
+                connection.write("VOLUME=" + Parameters.VOLUME.getByIndex(0));
+
                 //connection.write("EXECUTE");
             }
         }).start();
 
-        Toast.makeText(context, handler.getReply(), Toast.LENGTH_LONG).show();
+        //Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
+        //Parameters.resetValues();
+        //Toast.makeText(context, ip_address, Toast.LENGTH_LONG).show();
     }
 }
