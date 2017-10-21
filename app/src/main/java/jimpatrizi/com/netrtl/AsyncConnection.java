@@ -1,5 +1,7 @@
 package jimpatrizi.com.netrtl;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -7,9 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-
-import android.util.Log;
 
 /**
  * Created by Jim Patrizi 10/8/2017
@@ -128,6 +129,9 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
                 connectionHandler.didReceiveData(line);
             }
         } catch (UnknownHostException ex) {
+            Log.e(TAG, "doInBackground(): " + ex.toString());
+            error = interrupted ? null : ex;
+        } catch (SocketException ex) {
             Log.e(TAG, "doInBackground(): " + ex.toString());
             error = interrupted ? null : ex;
         } catch (IOException ex) {

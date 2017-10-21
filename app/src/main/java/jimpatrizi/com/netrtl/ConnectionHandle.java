@@ -11,7 +11,7 @@ import android.util.Log;
 public class ConnectionHandle implements ConnectionHandler {
 
     private String TAG = getClass().getName();
-    private String reply;
+    private String reply = "No Reply";
 
     ConnectionHandle(){
         //empty constructor

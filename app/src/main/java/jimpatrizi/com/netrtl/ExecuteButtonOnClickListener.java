@@ -3,10 +3,7 @@ package jimpatrizi.com.netrtl;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.View;
-
-import java.lang.reflect.Parameter;
-
-import static jimpatrizi.com.netrtl.Parameters.resetValues;
+import android.widget.Toast;
 
 /**
  * Created by Jim Patrizi on 10/2/2017.
@@ -54,8 +51,12 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
                 //connection.write("EXECUTE");
             }
         }).start();
-
-        //Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
+        String s = handler.getReply();
+        if(s.isEmpty())
+        {
+            s = "emptyy";
+        }
+        Toast.makeText(context, s, Toast.LENGTH_LONG).show();
         //Parameters.resetValues();
         //Toast.makeText(context, ip_address, Toast.LENGTH_LONG).show();
     }
