@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity
     {
         String defaultGainString = "0";
         int defaultGainInt = 0;
-        int maxGainInt = 2147483647;
+        int maxGainInt = 104;
 
         //Init Volume Parameter Default
         SQUELCH_LEVEL.append(defaultGainString);

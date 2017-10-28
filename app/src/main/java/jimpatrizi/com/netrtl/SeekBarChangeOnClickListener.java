@@ -17,6 +17,7 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
 {
     private Context context;
     private int progressChangedValue = 0;
+    private String gainChange = "0";
     private  String type;
     private TextView textView;
 
@@ -31,8 +32,33 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
     }
 
 
+    /**
+     * TODO Ask Ben about Tuner Gain defaults
+     * For when i forget later and I need to fix this gain.
+     * How many values there are between two integers? -> 13
+
+     How many integers are needed? 8 - 2 = 6
+
+     How many values in overall? -> 13 * 6 = 78 (max value of Seekbar)
+
+     How to show the value?
+
+     (progress / 13) + "." + (progress % 13)
+
+     * @param seekBar
+     * @param progress
+     * @param fromUser
+     */
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         progressChangedValue = progress;
+        if(type.equals("gain"))
+        {
+            gainChange = (progress / 13) + "." + (progress % 13);
+        }
+        else
+        {
+            progressChangedValue = progress;
+        }
 
     }
 
@@ -55,11 +81,11 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
         else if(type.equalsIgnoreCase("gain"))
         {
             if (TUNER_GAIN.isIndexValid(0)) {
-                TUNER_GAIN.replaceIndex(0, "" + progressChangedValue);
+                TUNER_GAIN.replaceIndex(0, "" + gainChange);
             } else {
-                TUNER_GAIN.append("" + progressChangedValue);
+                TUNER_GAIN.append("" + gainChange);
             }
-            Toast.makeText(context, "Gain (dB) =  " + progressChangedValue + "dB",
+            Toast.makeText(context, "Gain (dB) =  " + gainChange + "dB",
                     Toast.LENGTH_SHORT).show();
         }
         else //if(type.equalsIgnoreCase("squelch")
