@@ -12,6 +12,7 @@ public class ConnectionHandle implements ConnectionHandler {
 
     private String TAG = getClass().getName();
     private String reply = "No Reply";
+    public boolean fail;
 
     ConnectionHandle(){
         //empty constructor
@@ -26,16 +27,22 @@ public class ConnectionHandle implements ConnectionHandler {
 
     @Override
     public void didDisconnect(Exception error) {
+        fail = true;
         Log.d(TAG, "Disconnected");
     }
 
     @Override
     public void didConnect() {
+        fail = false;
         Log.d(TAG, "Connected to Socket");
     }
 
     public String getReply()
     {
         return reply;
+    }
+    public boolean getFailureStatus()
+    {
+        return fail;
     }
 }

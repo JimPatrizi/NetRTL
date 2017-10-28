@@ -7,9 +7,19 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
+/**
+ *  Handles Networking Parameters, IP and Port # Set by user. Saved as SharedPreferences to be called
+ *  anywhere in the code to instantiate socket connection in networking class.
+ */
+
 public class SettingsPrefActivity extends AppCompatPreferenceActivity
 {
-    private static final String TAG = SettingsPrefActivity.class.getSimpleName();
+    //for debugging in logcat private static final
+    //String TAG = SettingsPrefActivity.class.getSimpleName();
+
+    /**
+     * Shared Preference Editor object
+     */
     private static SharedPreferences.Editor editor;
 
     @Override

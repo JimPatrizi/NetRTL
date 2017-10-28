@@ -1,7 +1,6 @@
 package jimpatrizi.com.netrtl;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,7 +28,6 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
     public void onClick(View view) {
         //Parameters.BROADCAST_FM.append("97.9");
 
-        SharedPreferences sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
 
         for (Parameters p : Parameters.values())
         {
@@ -42,6 +40,7 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
         //Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
 
         //TODO make class for thread that does all of this with asyncconnection
+        //needs to be done from another thread, because doing a write is blocking to UI exec so it crashes. Looking at the threads in debugger, this should be fine as it uses this same thread every time listener is called
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -52,9 +51,13 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
             }
         }).start();
         String s = handler.getReply();
+        boolean didFail = handler.getFailureStatus();
+        if(didFail) {
+            connection.disconnect();
+        }
         if(s.isEmpty())
         {
-            s = "emptyy";
+            s = "empty";
         }
         Toast.makeText(context, s, Toast.LENGTH_LONG).show();
         //Parameters.resetValues();

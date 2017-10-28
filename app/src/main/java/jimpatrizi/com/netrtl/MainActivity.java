@@ -17,8 +17,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
 import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
 /**
@@ -30,84 +32,167 @@ import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public AsyncConnection connection;
+    /**
+     * Public Variables
+     */
+    public AsyncConnection connection; //needs replaced for Ben's networking code.
     public SeekBar volumeSeekBar;
+    public SeekBar squelchSeekBar;
+    public SeekBar gainSeekBar;
+    public Spinner modulationModeSpinner;
 
+    /**
+     * Text Objects
+     */
 
+    public TextView volumeTextView;
+    public TextView gainTextView;
+    public TextView squelchTextView;
+
+    /**
+     * Networking Connection Parameters
+     */
+    public int port_number;
+    public String ip_address;
+    public SharedPreferences sharedPrefs;
+
+    /**
+     *  MainActivity Context
+     */
+    public Context context;
+
+    /**
+     * Public Object creation
+     */
     //handles logcat messages for socket debugging, will be used to implement UI callback
     public ConnectionHandle handler = new ConnectionHandle();
 
+    /**
+     * Functions
+     */
+
+
+    /**
+     * OnCreate method, app starts here at launch to initialize all fields
+     * @param savedInstanceState - saves previous instance data for when the user comes back to the app
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //Bring back apps last known state and set activity_main view
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //included with project creation
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+             setSupportActionBar(toolbar);
+             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        //end included with project creation
+             drawer.setDrawerListener(toggle);
+            toggle.syncState();
+             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+             navigationView.setNavigationItemSelectedListener(this);
+             //end included with project creation
 
-        //Obtained the previously set IP + Port Preferences
-        Context context = getApplicationContext();
-        SharedPreferences sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
-        String ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
-        int port_number = sharedPrefs.getInt("key_port_name", 2832);
 
-        //Open socket with AsyncTask (Background Thread)
-        connection = new AsyncConnection(ip_address, port_number, handler);
-        connection.execute();
-        //end of open socket routine
-
+        //connect socket
+        asyncConnectionInit();
         //Init Execute button
         executeButtonInit();
         //In Modulation Mode Spinner
         spinnerInit();
         //Init Buttons
         buttonInit();
+        //Volume SeekBar Init
+        volumeSeekBarInit();
 
-        //SeekBar Init
-        volumeSeekBar=(SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
-        volumeSeekBar.setMax(100); // 100 maximum value for the Seek bar
-        volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progressChangedValue = 0;
+        gainSeekBarInit();
 
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                progressChangedValue = progress;
-            }
-
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-            }
-
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                Toast.makeText(MainActivity.this, "System Volume =  " + progressChangedValue + "%",
-                        Toast.LENGTH_SHORT).show();
-
-                if (VOLUME.isIndexValid(0))
-                {
-                    VOLUME.replaceIndex(0, "" +  progressChangedValue);
-                }
-                else
-                {
-                    VOLUME.append("" + progressChangedValue);
-                }
-            }
-        });
+        squelchSeekBarInit();
 
 
     }
 
+    /**
+     * Connect to socket with user given IP and socket
+     */
+    public void asyncConnectionInit()
+    {
+        //Obtained the previously set IP + Port Preferences
+        context = getApplicationContext();
+        sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
+        ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
+        port_number = sharedPrefs.getInt("key_port_name", 2832);
+
+        //Open socket with AsyncTask (Background Thread)
+        connection = new AsyncConnection(ip_address, port_number, handler);
+        connection.execute();
+        //end of open socket routine
+    }
+
+    /**
+     * Sets volume bar's seekbar methods and listener
+     */
+    public void gainSeekBarInit()
+    {
+        String defaultGainString = "0";
+        int defaultGainInt = 0;
+        int maxGainInt = 2147483647;
+
+        //Init Volume Parameter Default
+        SQUELCH_LEVEL.append(defaultGainString);
+
+        gainSeekBar=(SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
+        gainTextView = (TextView)findViewById(R.id.gain_text);
+
+        gainSeekBar.setMax(maxGainInt); // 0 maximum value for the Seek bar
+        gainSeekBar.setProgress(defaultGainInt);
+        gainSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, gainTextView, "gain"));
+    }
+
+
+    /**
+     * Sets volume bar's seekbar methods and listener
+     */
+    public void squelchSeekBarInit()
+    {
+        String defaultSquelchString = "0";
+        int defaultSquelchInt = 0;
+        int maxSquelchInt = 100;
+
+        //Init Volume Parameter Default
+        SQUELCH_LEVEL.append(defaultSquelchString);
+
+        squelchSeekBar=(SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
+        squelchTextView = (TextView)findViewById(R.id.squelch_text);
+
+        squelchSeekBar.setMax(maxSquelchInt); // 0 maximum value for the Seek bar
+        squelchSeekBar.setProgress(defaultSquelchInt);
+        squelchSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, squelchTextView, "squelch"));
+    }
+
+    /**
+     * Sets volume bar's seekbar methods and listener
+     */
+    public void volumeSeekBarInit()
+    {
+        String defaultVolumeString = "100";
+        int defaultVolumeInt = 100;
+
+        //Init Volume Parameter Default
+        VOLUME.append(defaultVolumeString);
+
+        volumeSeekBar=(SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
+        volumeTextView = (TextView)findViewById(R.id.volume_text);
+
+        volumeSeekBar.setMax(defaultVolumeInt); // 100 maximum value for the Seek bar
+        volumeSeekBar.setProgress(defaultVolumeInt);
+        volumeSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, volumeTextView, "volume"));
+    }
 
     /**
      * This executeButtonInit method sets the click listener on the execute button
-     * @return Nothing
      */
     public void executeButtonInit(){
         Button executeButton = (Button) findViewById(R.id.execute);
@@ -124,15 +209,15 @@ public class MainActivity extends AppCompatActivity
      */
     public void spinnerInit(){
         //init spinner from id
-        Spinner spin = (Spinner) findViewById(R.id.modeSpinner);
+        modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[] {
-                "WBFM", "AM", "USB", "LSB"
+                "WBFM", "NBFM", "AM", "USB", "LSB", "RAW"
         };
         //set array adapter to set the strings inside spinner obect
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, modeSpinnerStrings);
-        spin.setAdapter(adapter);
+        modulationModeSpinner.setAdapter(adapter);
         //formats spinner to be nice clickable size
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     }
@@ -196,15 +281,29 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
             // launch settings activity
             startActivity(new Intent(MainActivity.this, SettingsPrefActivity.class));
             return true;
+        }
+        else if (id == R.id.reconnect)
+        {
+            connection.cancel(true);
+            //TODO FIXME
+            connection.disconnect();
+            asyncConnectionInit();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    public void setSocketConnection(AsyncConnection connection)
+    {
+        this.connection = connection;
+    }
+
+    //TODO This is where the Advanced option needs to go, to start an intent that can set advanced settings
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

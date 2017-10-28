@@ -161,7 +161,8 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      */
     public void write(String data) {
         try {
-            Log.d(TAG, "writ(): data = " + data);
+            //TODO LEARN DEBUGGER AND DEBUG FOR IOEXCEPPTION
+            Log.d(TAG, "write(): data = " + data);
             out.write(data + "\n");
             out.flush();
         } catch (IOException ex) {
@@ -181,13 +182,19 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
             interrupted = true;
             if(socket != null) {
                 socket.close();
+                Log.d(TAG, "Socket closed");
             }
-            if(out != null & in != null) {
-                out.close();
+            if (in != null) {
                 in.close();
+                Log.d(TAG, "BufferedReader closed");
             }
+           // if(out != null) {
+           //     out.close();
+           //     Log.d(TAG, "BufferedWriter closed");
+         //   }
+
         } catch (IOException ex) {
-            Log.e(TAG, "disconnect(): " + ex.toString());
+            Log.e(TAG, "Exception occurred in disconnect(): " + ex.toString());
         }
     }
 }
