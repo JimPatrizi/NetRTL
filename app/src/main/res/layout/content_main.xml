@@ -82,7 +82,7 @@
 
 
     <EditText
-        android:id="@+id/Hz_Input"
+        android:id="@+id/hz_input"
         style="@style/Widget.AppCompat.EditText"
         android:layout_width="0dp"
         android:layout_height="42dp"
@@ -114,7 +114,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/Hz_Input"
+        app:layout_constraintLeft_toRightOf="@+id/hz_input"
         android:layout_marginLeft="8dp"
         app:layout_constraintHorizontal_bias="1.0"
         tools:layout_constraintTop_creator="1"
@@ -225,7 +225,7 @@
         android:layout_marginTop="38dp"
         android:dropDownWidth="150dp"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toRightOf="@+id/Hz_Input"
+        app:layout_constraintLeft_toRightOf="@+id/hz_input"
         app:layout_constraintRight_toLeftOf="@+id/execute"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginEnd="8dp" />

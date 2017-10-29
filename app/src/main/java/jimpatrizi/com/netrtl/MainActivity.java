@@ -10,16 +10,21 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import static jimpatrizi.com.netrtl.Parameters.FREQUENCY;
 import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
 import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
@@ -40,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     public SeekBar squelchSeekBar;
     public SeekBar gainSeekBar;
     public Spinner modulationModeSpinner;
+    public EditText hzInput;
 
     /**
      * Text Objects
@@ -111,7 +117,43 @@ public class MainActivity extends AppCompatActivity
 
         squelchSeekBarInit();
 
+        hzInputInit();
 
+
+    }
+
+    public void hzInputInit()
+    {
+        hzInput = (EditText) findViewById(R.id.hz_input);
+        hzInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String hzString = hzInput.getText().toString();
+                Toast.makeText(context, hzString + "Hz",
+                        Toast.LENGTH_SHORT).show();
+                FREQUENCY.replaceIndex(0, hzString);
+            }
+        });
+
+        hzInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            //this can be used for scannable frequencies if user hits enter and saves to parameter
+            public void onClick(View view) {
+                String hzString = hzInput.getText().toString();
+                Toast.makeText(context, hzString + "Hz",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
