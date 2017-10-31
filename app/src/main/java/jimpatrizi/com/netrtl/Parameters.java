@@ -92,7 +92,7 @@ public enum Parameters {
         List<String> dameonStrings = new ArrayList<>();
         dameonStrings.clear();
         for(String s : values){
-            dameonStrings.add(FUNCTION + "=" + s + "\n");
+            dameonStrings.add(FUNCTION + "=" + s);
         }
         return dameonStrings;
     }

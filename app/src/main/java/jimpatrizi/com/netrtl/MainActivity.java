@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity
         int maxGainInt = 104;
 
         //Init Volume Parameter Default
+        TUNER_GAIN.resetValues();
         TUNER_GAIN.append(defaultGainString);
 
         gainSeekBar=(SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
@@ -242,6 +243,7 @@ public class MainActivity extends AppCompatActivity
         int maxSquelchInt = 100;
 
         //Init Volume Parameter Default
+        SQUELCH_LEVEL.resetValues();
         SQUELCH_LEVEL.append(defaultSquelchString);
 
         squelchSeekBar=(SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
@@ -261,13 +263,15 @@ public class MainActivity extends AppCompatActivity
         int defaultVolumeInt = 100;
 
         //Init Volume Parameter Default
+        //BEN, weird stuff happens if i dont reset at startup
+        VOLUME.resetValues();
         VOLUME.append(defaultVolumeString);
 
         volumeSeekBar=(SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
         volumeTextView = (TextView)findViewById(R.id.volume_text);
 
         volumeSeekBar.setMax(defaultVolumeInt); // 100 maximum value for the Seek bar
-        volumeSeekBar.setProgress(defaultVolumeInt);
+        //volumeSeekBar.setProgress(defaultVolumeInt);
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, volumeTextView, "volume"));
     }
 
