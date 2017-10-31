@@ -15,15 +15,15 @@ public enum Parameters {
     SAMPLE_RATE("SAMPLE_RATE"), SQUELCH_DELAY("SQUELCH_DELAY"), SQUELCH_LEVEL("SQUELCH_LEVEL"),
     RESAMPLE_RATE("RESAMPLE_RATE"), ATAN_MATH("ATAN_MATH"), TUNER_GAIN("TUNER_GAIN"),
     VOLUME("VOLUME"),STOP("STOP"), CMDS_IN_USE("CMDS_IN_USE"), MY_STORED_CMDS("MY_STORED_CMDS"),
-    EXECUTE("EXECUTE"), CLEAR("CLEAR"), BROADCAST_AM("BROADCAST_AM"), BROADCAST_FM("BROADCAST_FM");
+    EXECUTE("EXECUTE"), CLEAR("CLEAR");//BROADCAST_AM("BROADCAST_AM"), BROADCAST_FM("BROADCAST_FM");
 
 
 
 
     private final String FUNCTION;
-    private static final List<String> values = new ArrayList<>();
+    private static List<String> values = new ArrayList<>();
 
-    private Parameters(final String function)
+    Parameters(final String function)
     {
         this.FUNCTION = function;
     }
@@ -86,6 +86,7 @@ public enum Parameters {
 
     public List<String> getDameonCallableStrings(){
         List<String> dameonStrings = new ArrayList<>();
+        dameonStrings.clear();
         for(String s : values){
             dameonStrings.add(FUNCTION + "=" + s);
         }

@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,9 +25,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static jimpatrizi.com.netrtl.Parameters.FREQUENCY;
-import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
-import static jimpatrizi.com.netrtl.Parameters.VOLUME;
+import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
+
+import java.io.IOException;
+
+import static jimpatrizi.com.netrtl.Parameters.*;
 
 /**
  * MainActivity of the NetRTL Android Application.
@@ -46,6 +49,13 @@ public class MainActivity extends AppCompatActivity
     public SeekBar gainSeekBar;
     public Spinner modulationModeSpinner;
     public EditText hzInput;
+    private static TcpClient tcpClient;
+    private static Thread tcpClientThread;
+
+    /**
+     * For Logcat debugging
+     */
+    private String TAG = getClass().getName();
 
     /**
      * Text Objects
@@ -77,6 +87,10 @@ public class MainActivity extends AppCompatActivity
      * Functions
      */
 
+    public static TcpClient getTcpClient()
+    {
+        return tcpClient;
+    }
 
     /**
      * OnCreate method, app starts here at launch to initialize all fields
@@ -88,6 +102,10 @@ public class MainActivity extends AppCompatActivity
         //Bring back apps last known state and set activity_main view
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = getApplicationContext();
+
+        //Reset Parameter Enums at startup
+        //Parameters.resetValues();
 
         //included with project creation
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -139,8 +157,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void afterTextChanged(Editable editable) {
                 String hzString = hzInput.getText().toString();
-                Toast.makeText(context, hzString + "Hz",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, hzString + "Hz", Toast.LENGTH_SHORT).show();
                 FREQUENCY.replaceIndex(0, hzString);
             }
         });
@@ -150,8 +167,7 @@ public class MainActivity extends AppCompatActivity
             //this can be used for scannable frequencies if user hits enter and saves to parameter
             public void onClick(View view) {
                 String hzString = hzInput.getText().toString();
-                Toast.makeText(context, hzString + "Hz",
-                        Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, hzString + "Hz", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -162,14 +178,36 @@ public class MainActivity extends AppCompatActivity
     public void asyncConnectionInit()
     {
         //Obtained the previously set IP + Port Preferences
-        context = getApplicationContext();
+
         sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
         ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
         port_number = sharedPrefs.getInt("key_port_name", 2832);
 
         //Open socket with AsyncTask (Background Thread)
-        connection = new AsyncConnection(ip_address, port_number, handler);
-        connection.execute();
+//        connection = new AsyncConnection(ip_address, port_number, handler);
+//        connection.execute();
+        if (tcpClientThread != null && tcpClientThread.isAlive())
+        {
+            try {
+                tcpClient.terminate();
+                // Potential resource leak since the tcpClientThread won't be dead yet
+                // Zombie thread?
+            }
+            catch (Exception exception)
+            {
+                Log.e(TAG,"UNABLE TO TERMINATE TCP CLIENT");
+            }
+        }
+        try
+        {
+            tcpClient = new TcpClient(ip_address, port_number);
+            tcpClientThread = new Thread(tcpClient, TcpClient.getDefaultThreadName());
+            tcpClientThread.start();
+        }
+        catch (IOException exception)
+        {
+            Log.e(TAG,"UNABLE TO CREATE SOCKET TO CLIENT");
+        }
         //end of open socket routine
     }
 
@@ -331,9 +369,10 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.reconnect)
         {
-            connection.cancel(true);
-            //TODO FIXME
-            connection.disconnect();
+//            connection.cancel(true);
+//            //TODO FIXME
+//            connection.disconnect();
+//            asyncConnectionInit();
             asyncConnectionInit();
         }
 

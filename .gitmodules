@@ -1,0 +1,9 @@
+[submodule "app/src/main/java/rtlsdrdJavaInterfaces"]
+	path = app/src/main/java/rtlsdrdJavaInterfaces
+	url = https://github.com/JimPatrizi/rtlsdrdJavaInterfaces.git
+[submodule "app/src/rtlsdrdJavaInterfaces"]
+	path = app/src/rtlsdrdJavaInterfaces
+	url = https://github.com/JimPatrizi/rtlsdrdJavaInterfaces.git
+[submodule "app/src/main/rtlsdrdJavaInterfaces"]
+	path = app/src/main/rtlsdrdJavaInterfaces
+	url = https://github.com/JimPatrizi/rtlsdrdJavaInterfaces.git
