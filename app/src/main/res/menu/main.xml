@@ -9,6 +9,6 @@
     <item
         android:id="@+id/reconnect"
         android:orderInCategory="100"
-        android:title="@string/reconnect_setting"
+        android:title="@string/connect_setting"
         app:showAsAction="never" />
 </menu>

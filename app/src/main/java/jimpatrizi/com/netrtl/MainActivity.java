@@ -40,6 +40,20 @@ import static jimpatrizi.com.netrtl.Parameters.*;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+
+    /**
+     * Private Variables
+     */
+
+    private static String frequency;
+    private static String modulationMode;
+    private static String overSampling;
+    private static String sampleRate;
+    private static String squelch;
+    private static String resampleRate;
+    private static String gain;
+    private static String volume;
+
     /**
      * Public Variables
      */
@@ -73,7 +87,7 @@ public class MainActivity extends AppCompatActivity
     public SharedPreferences sharedPrefs;
 
     /**
-     *  MainActivity Context
+     * MainActivity Context
      */
     public Context context;
 
@@ -87,13 +101,13 @@ public class MainActivity extends AppCompatActivity
      * Functions
      */
 
-    public static TcpClient getTcpClient()
-    {
+    public static TcpClient getTcpClient() {
         return tcpClient;
     }
 
     /**
      * OnCreate method, app starts here at launch to initialize all fields
+     *
      * @param savedInstanceState - saves previous instance data for when the user comes back to the app
      */
     @Override
@@ -108,16 +122,16 @@ public class MainActivity extends AppCompatActivity
         //Parameters.resetValues();
 
         //included with project creation
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-             setSupportActionBar(toolbar);
-             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-             drawer.setDrawerListener(toggle);
-            toggle.syncState();
-             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-             navigationView.setNavigationItemSelectedListener(this);
-             //end included with project creation
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        //end included with project creation
 
 
         //connect socket
@@ -137,11 +151,16 @@ public class MainActivity extends AppCompatActivity
 
         hzInputInit();
 
+        //Base Default Parameter Inits
+        FREQUENCY.append("0");
+        MODULATION_MODE.append("wbfm");
+        RESAMPLE_RATE.append("48000");
+        SAMPLE_RATE.append("2400000");
+
 
     }
 
-    public void hzInputInit()
-    {
+    public void hzInputInit() {
         hzInput = (EditText) findViewById(R.id.hz_input);
         hzInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -157,8 +176,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void afterTextChanged(Editable editable) {
                 String hzString = hzInput.getText().toString();
-                Toast.makeText(context, hzString + "Hz", Toast.LENGTH_SHORT).show();
-                FREQUENCY.replaceIndex(0, hzString);
+                setFrequency(hzString);
+                FREQUENCY.replaceIndex(0, getFrequency());
             }
         });
 
@@ -175,8 +194,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Connect to socket with user given IP and socket
      */
-    public void asyncConnectionInit()
-    {
+    public void asyncConnectionInit() {
         //Obtained the previously set IP + Port Preferences
 
         sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
@@ -186,27 +204,21 @@ public class MainActivity extends AppCompatActivity
         //Open socket with AsyncTask (Background Thread)
 //        connection = new AsyncConnection(ip_address, port_number, handler);
 //        connection.execute();
-        if (tcpClientThread != null && tcpClientThread.isAlive())
-        {
+        if (tcpClientThread != null && tcpClientThread.isAlive()) {
             try {
                 tcpClient.terminate();
                 // Potential resource leak since the tcpClientThread won't be dead yet
                 // Zombie thread?
-            }
-            catch (Exception exception)
-            {
-                Log.e(TAG,"UNABLE TO TERMINATE TCP CLIENT");
+            } catch (Exception exception) {
+                Log.e(TAG, "UNABLE TO TERMINATE TCP CLIENT");
             }
         }
-        try
-        {
+        try {
             tcpClient = new TcpClient(ip_address, port_number);
             tcpClientThread = new Thread(tcpClient, TcpClient.getDefaultThreadName());
             tcpClientThread.start();
-        }
-        catch (IOException exception)
-        {
-            Log.e(TAG,"UNABLE TO CREATE SOCKET TO CLIENT");
+        } catch (IOException exception) {
+            Log.e(TAG, "UNABLE TO CREATE SOCKET TO CLIENT");
         }
         //end of open socket routine
     }
@@ -214,18 +226,17 @@ public class MainActivity extends AppCompatActivity
     /**
      * Sets volume bar's seekbar methods and listener
      */
-    public void gainSeekBarInit()
-    {
-        String defaultGainString = "0";
+    public void gainSeekBarInit() {
+        String defaultGainString = "-100";
         int defaultGainInt = 0;
-        int maxGainInt = 104;
+        int maxGainInt = 58;
 
         //Init Volume Parameter Default
         TUNER_GAIN.resetValues();
         TUNER_GAIN.append(defaultGainString);
 
-        gainSeekBar=(SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
-        gainTextView = (TextView)findViewById(R.id.gain_text);
+        gainSeekBar = (SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
+        gainTextView = (TextView) findViewById(R.id.gain_text);
 
         gainSeekBar.setMax(maxGainInt); // 0 maximum value for the Seek bar
         gainSeekBar.setProgress(defaultGainInt);
@@ -236,8 +247,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Sets volume bar's seekbar methods and listener
      */
-    public void squelchSeekBarInit()
-    {
+    public void squelchSeekBarInit() {
         String defaultSquelchString = "0";
         int defaultSquelchInt = 0;
         int maxSquelchInt = 100;
@@ -246,8 +256,8 @@ public class MainActivity extends AppCompatActivity
         SQUELCH_LEVEL.resetValues();
         SQUELCH_LEVEL.append(defaultSquelchString);
 
-        squelchSeekBar=(SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
-        squelchTextView = (TextView)findViewById(R.id.squelch_text);
+        squelchSeekBar = (SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
+        squelchTextView = (TextView) findViewById(R.id.squelch_text);
 
         squelchSeekBar.setMax(maxSquelchInt); // 0 maximum value for the Seek bar
         squelchSeekBar.setProgress(defaultSquelchInt);
@@ -257,8 +267,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Sets volume bar's seekbar methods and listener
      */
-    public void volumeSeekBarInit()
-    {
+    public void volumeSeekBarInit() {
         String defaultVolumeString = "100";
         int defaultVolumeInt = 100;
 
@@ -267,8 +276,8 @@ public class MainActivity extends AppCompatActivity
         VOLUME.resetValues();
         VOLUME.append(defaultVolumeString);
 
-        volumeSeekBar=(SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
-        volumeTextView = (TextView)findViewById(R.id.volume_text);
+        volumeSeekBar = (SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
+        volumeTextView = (TextView) findViewById(R.id.volume_text);
 
         volumeSeekBar.setMax(defaultVolumeInt); // 100 maximum value for the Seek bar
         //volumeSeekBar.setProgress(defaultVolumeInt);
@@ -278,7 +287,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * This executeButtonInit method sets the click listener on the execute button
      */
-    public void executeButtonInit(){
+    public void executeButtonInit() {
         Button executeButton = (Button) findViewById(R.id.execute);
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
@@ -289,13 +298,14 @@ public class MainActivity extends AppCompatActivity
     /**
      * This spinnerInit method gets the spinner id from content_main.xml,
      * populates spinner with WBFM, AM, USB, LSB
+     *
      * @return Nothing
      */
-    public void spinnerInit(){
+    public void spinnerInit() {
         //init spinner from id
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         //spinner strings to populate spinner object
-        String[] modeSpinnerStrings = new String[] {
+        String[] modeSpinnerStrings = new String[]{
                 "WBFM", "NBFM", "AM", "USB", "LSB", "RAW"
         };
         //set array adapter to set the strings inside spinner obect
@@ -306,9 +316,14 @@ public class MainActivity extends AppCompatActivity
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     }
 
+    public void setModulationModeSpinner() {
+
+    }
+
     /**
      * Initializes buttons with click listeners for their respective values in the FREQUENCY Parameter,
      * Buttons include +/- 1k, 10k, 100k, 10MHz
+     *
      * @return Nothing.
      */
     public void buttonInit() {
@@ -338,7 +353,7 @@ public class MainActivity extends AppCompatActivity
         decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext()));
     }
 
-//included with project creation
+    //included with project creation
     //included code below came with Navigation Pullout Activity
     @Override
     public void onBackPressed() {
@@ -365,14 +380,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
-        {
+        if (id == R.id.action_settings) {
             // launch settings activity
             startActivity(new Intent(MainActivity.this, SettingsPrefActivity.class));
             return true;
-        }
-        else if (id == R.id.reconnect)
-        {
+        } else if (id == R.id.reconnect) {
 //            connection.cancel(true);
 //            //TODO FIXME
 //            connection.disconnect();
@@ -383,8 +395,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void setSocketConnection(AsyncConnection connection)
-    {
+    public void setSocketConnection(AsyncConnection connection) {
         this.connection = connection;
     }
 
@@ -412,5 +423,69 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public static String getModulationMode() {
+        return modulationMode;
+    }
+
+    public void setModulationMode(String modulationMode) {
+        this.modulationMode = modulationMode;
+    }
+
+    public static String getOverSampling() {
+        return overSampling;
+    }
+
+    public  void setOverSampling(String overSampling) {
+        this.overSampling = overSampling;
+    }
+
+    public static String getSampleRate() {
+        return sampleRate;
+    }
+
+    public void setSampleRate(String sampleRate) {
+        this.sampleRate = sampleRate;
+    }
+
+    public static String getSquelch() {
+        return squelch;
+    }
+
+    public  void setSquelch(String squelch) {
+        this.squelch = squelch;
+    }
+
+    public static String getResampleRate() {
+        return resampleRate;
+    }
+
+    public void setResampleRate(String resampleRate) {
+        this.resampleRate = resampleRate;
+    }
+
+    public static String getGain() {
+        return gain;
+    }
+
+    public void setGain(String gain) {
+        this.gain = gain;
+    }
+
+    public static String getVolume() {
+        return volume;
+    }
+
+    public  void setVolume(String volume) {
+        this.volume = volume;
+    }
+
+    public static String getFrequency() {
+        return frequency;
+    }
+
+    public  void setFrequency(String frequency) {
+        this.frequency = frequency;
     }
 }

@@ -8,9 +8,21 @@ import android.view.View;
  * Created by Jim Patrizi on 10/2/2017.
  */
 
+
+
 public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
     public AsyncConnection connection;
+
+    private String frequency;
+    private String modulationMode;
+    private String overSampling;
+    private String sampleRate;
+    private String squelch;
+    private String resampleRate;
+    private String gain;
+    private String volume;
+
     String dameon = "";
     private ConnectionHandle handler;
     private String TAG = getClass().getName();
@@ -26,15 +38,15 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+
         for (Parameters p : Parameters.values())
         {
-            for(String s : p.getDameonCallableStrings()){
+            for(String s : p.getDameonCallableStrings()) {
 
                 MainActivity.getTcpClient().sendToServer(s);
                 Log.d(TAG, s);
             }
-           // MainActivity.getTcpClient().sendToServer("EXECUTE");
-            p.resetValues();
         }
+        MainActivity.getTcpClient().sendToServer("EXECUTE");
     }
 }

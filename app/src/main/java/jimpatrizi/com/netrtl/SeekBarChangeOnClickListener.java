@@ -5,7 +5,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static jimpatrizi.com.netrtl.Parameters.*;
+import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
+import static jimpatrizi.com.netrtl.Parameters.TUNER_GAIN;
+import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
 /**
  * Created by jamespatrizi on 10/21/17.
@@ -18,6 +20,7 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
     private String gainChange = "0";
     private  String type;
     private TextView textView;
+    private  int AGC = -100;
 
     /**
      * Constructor that gets the new value
@@ -49,14 +52,14 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
      */
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         progressChangedValue = progress;
-        if(type.equals("gain"))
-        {
-            gainChange = (progress / 13) + "." + (progress % 13);
-        }
-        else
-        {
-            progressChangedValue = progress;
-        }
+//        if(type.equals("gain"))
+//        {
+//            gainChange = (progress / 13) + "." + (progress % 13);
+//        }
+//        else
+//        {
+//            progressChangedValue = progress;
+//        }
 
     }
 
@@ -78,13 +81,24 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
         }
         else if(type.equalsIgnoreCase("gain"))
         {
-            if (TUNER_GAIN.isIndexValid(0)) {
-                TUNER_GAIN.replaceIndex(0, "" + gainChange);
-            } else {
-                TUNER_GAIN.append("" + gainChange);
+            if(progressChangedValue != 0)
+            {
+                if (TUNER_GAIN.isIndexValid(0)) {
+                    TUNER_GAIN.replaceIndex(0, "" + progressChangedValue);
+                } else {
+                    TUNER_GAIN.append("" + progressChangedValue);
+                }
+                Toast.makeText(context, "Gain (dB) =  " + progressChangedValue + "dB",
+                        Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(context, "Gain (dB) =  " + gainChange + "dB",
-                    Toast.LENGTH_SHORT).show();
+            else
+            {
+                if (TUNER_GAIN.isIndexValid(0)) {
+                    TUNER_GAIN.replaceIndex(0, "" + AGC);
+                } else {
+                    TUNER_GAIN.append("" + AGC);
+                }
+            }
         }
         else //if(type.equalsIgnoreCase("squelch")
         {
