@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
-                "WBFM", "NBFM", "AM", "USB", "LSB", "RAW"
+                "wbfm", "nbfm", "am", "usb", "lsb", "raw"
         };
         //set array adapter to set the strings inside spinner obect
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -314,10 +315,38 @@ public class MainActivity extends AppCompatActivity
         modulationModeSpinner.setAdapter(adapter);
         //formats spinner to be nice clickable size
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        modulationModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String newModulationMode = getModulationModeSpinner(modulationModeSpinner);
+                MODULATION_MODE.replaceIndex(0, newModulationMode);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //do Nothing?
+            }
+        });
     }
 
-    public void setModulationModeSpinner() {
+    public String getModulationModeSpinner(Spinner modulationModeSpinner) {
+      return modulationModeSpinner.getSelectedItem().toString();
+    }
 
+    public void setModulationModeSpinner(Spinner modulationModeSpinner, String newMode)
+    {
+        int index = 0;
+        for(int i = 0; i < modulationModeSpinner.getCount(); i++)
+        {
+            if(modulationModeSpinner.getItemAtPosition(i).toString().equals(newMode))
+            {
+                modulationModeSpinner.setSelection(i);
+                break;
+            }
+            else
+                Log.e(TAG, "Invalid mode");
+        }
     }
 
     /**
