@@ -25,7 +25,7 @@ public enum Parameters {
 
 
     private final String FUNCTION;
-    private static List<String> values = new ArrayList<>();
+    private List<String> values = new ArrayList<>();
 
     Parameters(final String function)
     {
@@ -42,7 +42,7 @@ public enum Parameters {
         return values.remove(val);
     }
 
-    public static void resetValues()
+    public void resetValues()
     {
         values.clear();
     }
@@ -90,7 +90,6 @@ public enum Parameters {
 
     public List<String> getDameonCallableStrings(){
         List<String> dameonStrings = new ArrayList<>();
-        dameonStrings.clear();
         for(String s : values){
             dameonStrings.add(FUNCTION + "=" + s);
         }
