@@ -5,9 +5,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
-import static jimpatrizi.com.netrtl.Parameters.TUNER_GAIN;
-import static jimpatrizi.com.netrtl.Parameters.VOLUME;
+import static jimpatrizi.com.netrtl.Parameters.*;
 
 /**
  * Created by jamespatrizi on 10/21/17.

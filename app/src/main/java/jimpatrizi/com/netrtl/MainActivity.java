@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity
         int maxGainInt = 104;
 
         //Init Volume Parameter Default
-        SQUELCH_LEVEL.append(defaultGainString);
+        TUNER_GAIN.append(defaultGainString);
 
         gainSeekBar=(SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
         gainTextView = (TextView)findViewById(R.id.gain_text);

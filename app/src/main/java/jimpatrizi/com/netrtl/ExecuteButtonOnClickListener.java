@@ -12,7 +12,6 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
     public AsyncConnection connection;
     String dameon = "";
-    Parameters p;
     private ConnectionHandle handler;
     private String TAG = getClass().getName();
 
@@ -27,9 +26,6 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        //Parameters.BROADCAST_FM.append("97.9");
-
-
         for (Parameters p : Parameters.values())
         {
             for(String s : p.getDameonCallableStrings()){
@@ -37,33 +33,8 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
                 MainActivity.getTcpClient().sendToServer(s);
                 Log.d(TAG, s);
             }
+           // MainActivity.getTcpClient().sendToServer("EXECUTE");
+            p.resetValues();
         }
-
-        //Reset Parameter enums after execute button click.
-        Parameters.resetValues();
-        //Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
-
-//        //needs to be done from another thread, because doing a write is blocking to UI exec so it crashes. Looking at the threads in debugger, this should be fine as it uses this same thread every time listener is called
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                //connection.write("HELP");
-//                connection.write("VOLUME=" + Parameters.VOLUME.getByIndex(0));
-//
-//                //connection.write("EXECUTE");
-//            }
-//        }).start();
-//        String s = handler.getReply();
-//        boolean didFail = handler.getFailureStatus();
-//        if(didFail) {
-//            connection.disconnect();
-//        }
-//        if(s.isEmpty())
-//        {
-//            s = "empty";
-//        }
-        //Toast.makeText(context, s, Toast.LENGTH_LONG).show();
-        //Parameters.resetValues();
-        //Toast.makeText(context, ip_address, Toast.LENGTH_LONG).show();
     }
 }
