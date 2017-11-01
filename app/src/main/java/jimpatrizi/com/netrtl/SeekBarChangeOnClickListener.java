@@ -98,6 +98,7 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
                 } else {
                     TUNER_GAIN.append("" + AGC);
                 }
+                Toast.makeText(context, "Automatic Gain Control Enabled", Toast.LENGTH_SHORT).show();
             }
         }
         else //if(type.equalsIgnoreCase("squelch")

@@ -41,7 +41,6 @@ import static jimpatrizi.com.netrtl.Parameters.*;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-
     /**
      * Private Variables
      */
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity
     public EditText hzInput;
     private static TcpClient tcpClient;
     private static Thread tcpClientThread;
+
 
     /**
      * For Logcat debugging
@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity
         asyncConnectionInit();
         //Init Execute button
         executeButtonInit();
+
+        hzInputInit();
         //In Modulation Mode Spinner
         spinnerInit();
         //Init Buttons
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity
 
         squelchSeekBarInit();
 
-        hzInputInit();
+
 
         //Base Default Parameter Inits
         FREQUENCY.append("0");
@@ -307,7 +309,7 @@ public class MainActivity extends AppCompatActivity
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
-                "wbfm", "nbfm", "am", "usb", "lsb", "raw"
+                "wbfm", "fm", "am", "usb", "lsb", "raw"
         };
         //set array adapter to set the strings inside spinner obect
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -358,28 +360,28 @@ public class MainActivity extends AppCompatActivity
     public void buttonInit() {
 
         Button increment1KHZ = (Button) findViewById(R.id.p1khz);
-        increment1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(1000, getApplicationContext()));
+        increment1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(1000, getApplicationContext(), hzInput));
 
         Button decrement1KHZ = (Button) findViewById(R.id.n1khz);
-        decrement1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-1000, getApplicationContext()));
+        decrement1KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-1000, getApplicationContext(), hzInput));
 
         Button increment10KHZ = (Button) findViewById(R.id.p10khz);
-        increment10KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(10000, getApplicationContext()));
+        increment10KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(10000, getApplicationContext(), hzInput));
 
         Button decrement10KHZ = (Button) findViewById(R.id.n10khz);
-        decrement10KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000, getApplicationContext()));
+        decrement10KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000, getApplicationContext(), hzInput));
 
         Button increment100KHZ = (Button) findViewById(R.id.p100khz);
-        increment100KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(100000, getApplicationContext()));
+        increment100KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(100000, getApplicationContext(), hzInput));
 
         Button decrement100KHZ = (Button) findViewById(R.id.n100khz);
-        decrement100KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-100000, getApplicationContext()));
+        decrement100KHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-100000, getApplicationContext(), hzInput));
 
         Button increment10MHZ = (Button) findViewById(R.id.p10mhz);
-        increment10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(10000000, getApplicationContext()));
+        increment10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(10000000, getApplicationContext(), hzInput));
 
         Button decrement10MHZ = (Button) findViewById(R.id.n10mhz);
-        decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext()));
+        decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext(), hzInput));
     }
 
     //included with project creation
