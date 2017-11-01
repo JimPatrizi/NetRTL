@@ -1,5 +1,7 @@
 package jimpatrizi.com.netrtl;
 
+import android.app.Activity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +24,10 @@ public enum Parameters {
     //STOP("STOP"), CMDS_IN_USE("CMDS_IN_USE"), MY_STORED_CMDS("MY_STORED_CMDS"),
     //EXECUTE("EXECUTE"), CLEAR("CLEAR");//BROADCAST_AM("BROADCAST_AM"), BROADCAST_FM("BROADCAST_FM");
 
-
-
-
     private final String FUNCTION;
     private List<String> values = new ArrayList<>();
+    private android.view.View uiElement;
+    private Class uiElementSpecificType;
 
     Parameters(final String function)
     {
@@ -36,6 +37,26 @@ public enum Parameters {
     public void append(String val)
     {
         values.add(val);
+    }
+
+    public void setUiMembers(android.view.View uiElement, Class uiElementSpecificType)
+    {
+        this.uiElement = uiElement;
+        this.uiElementSpecificType = uiElementSpecificType;
+    }
+
+    public void updateField(Activity mainActivity, final String newVal)
+    {
+        if (uiElementSpecificType.equals(android.widget.TextView.class))
+        {
+            mainActivity.runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           ((android.widget.TextView) uiElement).setText(newVal);
+                       }
+                   }
+            );
+        }
     }
 
     public boolean remove(String val)
@@ -60,14 +81,7 @@ public enum Parameters {
             return false;
         }
 
-        if (idx < values.size())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return idx < values.size();
     }
 
     //if indx doesnt exist, write the val and return true
@@ -95,5 +109,10 @@ public enum Parameters {
             dameonStrings.add(FUNCTION + "=" + s);
         }
         return dameonStrings;
+    }
+
+    public String getFunction()
+    {
+        return FUNCTION;
     }
 }

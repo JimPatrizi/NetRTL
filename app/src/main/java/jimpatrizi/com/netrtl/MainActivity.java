@@ -77,7 +77,8 @@ public class MainActivity extends AppCompatActivity
     public EditText hzInput;
     private static TcpClient tcpClient;
     private static Thread tcpClientThread;
-
+    private ResponseListener responseListener;
+    private Thread responseListenerThread;
 
     /**
      * For Logcat debugging
@@ -182,6 +183,10 @@ public class MainActivity extends AppCompatActivity
 
     public void hzInputInit() {
         hzInput = (EditText) findViewById(R.id.hz_input);
+
+        // Associate this with the Frequency parameter
+        Parameters.FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
+
         hzInput.addTextChangedListener(new HzInputTextWatcher(hzInput));
 
         //TODO use later for scannable frequencies?
@@ -218,6 +223,10 @@ public class MainActivity extends AppCompatActivity
             tcpClient = new TcpClient(ip_address, port_number);
             tcpClientThread = new Thread(tcpClient, TcpClient.getDefaultThreadName());
             tcpClientThread.start();
+            responseListener = new ResponseListener(tcpClient, this);
+            responseListenerThread = new Thread(responseListener);
+            responseListenerThread.start();
+            //TODO Kill old thread
         } catch (IOException exception) {
             Log.e(TAG, "UNABLE TO CREATE SOCKET TO CLIENT");
         }
