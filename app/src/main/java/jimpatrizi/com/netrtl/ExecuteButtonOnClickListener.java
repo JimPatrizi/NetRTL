@@ -1,47 +1,52 @@
 package jimpatrizi.com.netrtl;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * Created by Jim Patrizi on 10/2/2017.
  */
 
+
+
 public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
     public AsyncConnection connection;
 
+    private String frequency;
+    private String modulationMode;
+    private String overSampling;
+    private String sampleRate;
+    private String squelch;
+    private String resampleRate;
+    private String gain;
+    private String volume;
 
-    ExecuteButtonOnClickListener(Context context, AsyncConnection connection){
+    String dameon = "";
+    private ConnectionHandle handler;
+    private String TAG = getClass().getName();
+
+
+
+    ExecuteButtonOnClickListener(Context context, AsyncConnection connection, ConnectionHandle handler){
         this.context = context;
         this.connection = connection;
+        this.handler = handler;
     }
 
 
     @Override
     public void onClick(View view) {
-        Parameters.SAMPLE_RATE.append("Ben Sucks at 100MS/s");
-        Parameters.ATAN_MATH.append("Ben Sucks 69Hz");
-        Parameters.BROADCAST_FM.append("91.1");
-        String dameon = "";
+
         for (Parameters p : Parameters.values())
         {
-            //if i want to mess with sockets, later, do socket shit here
-            for(String s : p.getDameonCallableStrings()){
-                dameon += s;
-                dameon += "\n";
-            }
-            p.resetValues();
-        }
-        Toast.makeText(context, dameon, Toast.LENGTH_LONG).show();
+            for(String s : p.getDameonCallableStrings()) {
 
-        //TODO make class for thread that does all of this with asyncconnection
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-            connection.write("HELP");
+                MainActivity.getTcpClient().sendToServer(s);
+                Log.d(TAG, s);
             }
-        }).start();
+        }
+        MainActivity.getTcpClient().sendToServer("EXECUTE");
     }
 }

@@ -1,5 +1,7 @@
 package jimpatrizi.com.netrtl;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -7,9 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-
-import android.util.Log;
 
 /**
  * Created by Jim Patrizi 10/8/2017
@@ -39,10 +40,6 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      */
     private int portNumber;
 
-    /**
-     * Timeout to connect to server
-     */
-    private int timeout;
 
     /**
      * Connection Handler to interface with callbacks from server
@@ -78,13 +75,11 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      * Constructor that provides server sockets's IP address and portNumber number
      * @param serverHostname Server's Hostname
      * @param portNumber Server socket's port number
-     * @param timeout timeout to connect to server
      * @param connectionHandler connection handler for callbacks
      */
-    public AsyncConnection(String serverHostname, int portNumber, int timeout, ConnectionHandler connectionHandler) {
+    public AsyncConnection(String serverHostname, int portNumber, ConnectionHandler connectionHandler) {
         this.serverHostname = serverHostname;
         this.portNumber = portNumber;
-        this.timeout = timeout;
         this.connectionHandler = connectionHandler;
     }
 
@@ -120,7 +115,7 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
         try {
             Log.d(TAG, "Opening socket connection.");
             socket = new Socket();
-            socket.connect(new InetSocketAddress(serverHostname, portNumber), timeout);
+            socket.connect(new InetSocketAddress(serverHostname, portNumber));
 
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -136,6 +131,9 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
         } catch (UnknownHostException ex) {
             Log.e(TAG, "doInBackground(): " + ex.toString());
             error = interrupted ? null : ex;
+        } catch (SocketException ex) {
+            Log.e(TAG, "doInBackground(): " + ex.toString());
+            error = interrupted ? null : ex;
         } catch (IOException ex) {
             Log.d(TAG, "doInBackground(): " + ex.toString());
             error = interrupted ? null : ex;
@@ -143,6 +141,8 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
             Log.e(TAG, "doInBackground(): " + ex.toString());
             error = interrupted ? null : ex;
         } finally {
+            //TODO if this fails, reader and writer never close, try using https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html when you do that, close is called automatically
+            // FIXME: 10/9/2017
             try {
                 socket.close();
                 out.close();
@@ -159,9 +159,10 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
      * Writes data to the server
      * @param data Singular command to be written to server
      */
-    public void write(final String data) {
+    public void write(String data) {
         try {
-            Log.d(TAG, "writ(): data = " + data);
+            //TODO LEARN DEBUGGER AND DEBUG FOR IOEXCEPPTION
+            Log.d(TAG, "write(): data = " + data);
             out.write(data + "\n");
             out.flush();
         } catch (IOException ex) {
@@ -181,13 +182,19 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
             interrupted = true;
             if(socket != null) {
                 socket.close();
+                Log.d(TAG, "Socket closed");
             }
-            if(out != null & in != null) {
-                out.close();
+            if (in != null) {
                 in.close();
+                Log.d(TAG, "BufferedReader closed");
             }
+           // if(out != null) {
+           //     out.close();
+           //     Log.d(TAG, "BufferedWriter closed");
+         //   }
+
         } catch (IOException ex) {
-            Log.e(TAG, "disconnect(): " + ex.toString());
+            Log.e(TAG, "Exception occurred in disconnect(): " + ex.toString());
         }
     }
 }

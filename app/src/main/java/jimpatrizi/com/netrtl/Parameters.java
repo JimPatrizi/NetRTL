@@ -4,19 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Creates enums for all rtlsdrd dameon parameters
  * Created by jamespatrizi on 9/30/17.
+ * @author Jim Patrizi
  */
 
 public enum Parameters {
-    FREQUENCY("FREQUENCY"), BROADCAST_FM("BROADCAST_FM"), SAMPLE_RATE("SAMPLE_RATE"), ATAN_MATH("ATAN_MATH");
+    FREQUENCY("FREQUENCY"),
+    SQUELCH_LEVEL("SQUELCH_LEVEL"),
+    TUNER_GAIN("TUNER_GAIN"),
+    MODULATION_MODE("MODULATION_MODE"),
+//    SCANNABLE_FREQUENCY("SCANNABLE_FREQUENCY"), OVERSAMPLING("OVERSAMPLING"), PPM_ERROR("PPM_ERROR"),
+    SAMPLE_RATE("SAMPLE_RATE"), //SQUELCH_DELAY("SQUELCH_DELAY"), ,
+    RESAMPLE_RATE("RESAMPLE_RATE"),
+    //ATAN_MATH("ATAN_MATH"),
+    VOLUME("VOLUME");
+    //STOP("STOP"), CMDS_IN_USE("CMDS_IN_USE"), MY_STORED_CMDS("MY_STORED_CMDS"),
+    //EXECUTE("EXECUTE"), CLEAR("CLEAR");//BROADCAST_AM("BROADCAST_AM"), BROADCAST_FM("BROADCAST_FM");
+
+
+
 
     private final String FUNCTION;
-    private final List<String> values;
+    private List<String> values = new ArrayList<>();
 
-    private Parameters(final String function)
+    Parameters(final String function)
     {
         this.FUNCTION = function;
-        values = new ArrayList<>();
     }
 
     public void append(String val)
