@@ -10,8 +10,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -30,7 +28,13 @@ import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
 
 import java.io.IOException;
 
-import static jimpatrizi.com.netrtl.Parameters.*;
+import static jimpatrizi.com.netrtl.Parameters.FREQUENCY;
+import static jimpatrizi.com.netrtl.Parameters.MODULATION_MODE;
+import static jimpatrizi.com.netrtl.Parameters.RESAMPLE_RATE;
+import static jimpatrizi.com.netrtl.Parameters.SAMPLE_RATE;
+import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
+import static jimpatrizi.com.netrtl.Parameters.TUNER_GAIN;
+import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
 /**
  * MainActivity of the NetRTL Android Application.
@@ -42,17 +46,25 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     /**
+     * Default Parameter Inits
+     */
+
+    private static String modulationMode = "wbfm";
+    private static String sampleRate = "2400000";
+    private static String resampleRate = "48000";
+    private static String volume = "100";
+    private static String squelch = "0";
+    private static String gain = "-100";
+    private static String frequency = "0";
+
+    /**
      * Private Variables
      */
 
-    private static String frequency;
-    private static String modulationMode;
+
     private static String overSampling;
-    private static String sampleRate;
-    private static String squelch;
-    private static String resampleRate;
-    private static String gain;
-    private static String volume;
+
+
 
     /**
      * Public Variables
@@ -136,7 +148,7 @@ public class MainActivity extends AppCompatActivity
 
 
         //connect socket
-        asyncConnectionInit();
+        threadClientInit();
         //Init Execute button
         executeButtonInit();
 
@@ -151,39 +163,28 @@ public class MainActivity extends AppCompatActivity
         gainSeekBarInit();
 
         squelchSeekBarInit();
+        defaultParamInits();
 
 
 
-        //Base Default Parameter Inits
-        FREQUENCY.append("0");
-        MODULATION_MODE.append("wbfm");
-        RESAMPLE_RATE.append("48000");
-        SAMPLE_RATE.append("2400000");
 
 
     }
 
+    public void defaultParamInits()
+    {
+        //Base Default Parameter Inits
+        FREQUENCY.append(frequency);
+        MODULATION_MODE.append(modulationMode);
+        RESAMPLE_RATE.append(resampleRate);
+        SAMPLE_RATE.append(sampleRate);
+    }
+
     public void hzInputInit() {
         hzInput = (EditText) findViewById(R.id.hz_input);
-        hzInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        hzInput.addTextChangedListener(new HzInputTextWatcher(hzInput));
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String hzString = hzInput.getText().toString();
-                setFrequency(hzString);
-                FREQUENCY.replaceIndex(0, getFrequency());
-            }
-        });
-
+        //TODO use later for scannable frequencies?
         hzInput.setOnClickListener(new View.OnClickListener() {
             @Override
             //this can be used for scannable frequencies if user hits enter and saves to parameter
@@ -197,16 +198,13 @@ public class MainActivity extends AppCompatActivity
     /**
      * Connect to socket with user given IP and socket
      */
-    public void asyncConnectionInit() {
+    public void threadClientInit() {
         //Obtained the previously set IP + Port Preferences
 
         sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
         ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
         port_number = sharedPrefs.getInt("key_port_name", 2832);
 
-        //Open socket with AsyncTask (Background Thread)
-//        connection = new AsyncConnection(ip_address, port_number, handler);
-//        connection.execute();
         if (tcpClientThread != null && tcpClientThread.isAlive()) {
             try {
                 tcpClient.terminate();
@@ -230,19 +228,18 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void gainSeekBarInit() {
-        String defaultGainString = "-100";
         int defaultGainInt = 0;
         int maxGainInt = 58;
 
         //Init Volume Parameter Default
         TUNER_GAIN.resetValues();
-        TUNER_GAIN.append(defaultGainString);
+        TUNER_GAIN.append(gain);
 
         gainSeekBar = (SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
         gainTextView = (TextView) findViewById(R.id.gain_text);
 
         gainSeekBar.setMax(maxGainInt); // 0 maximum value for the Seek bar
-        gainSeekBar.setProgress(defaultGainInt);
+        gainSeekBar.setProgress(Integer.parseInt(gain));
         gainSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, gainTextView, "gain"));
     }
 
@@ -251,19 +248,17 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void squelchSeekBarInit() {
-        String defaultSquelchString = "0";
-        int defaultSquelchInt = 0;
         int maxSquelchInt = 100;
 
         //Init Volume Parameter Default
         SQUELCH_LEVEL.resetValues();
-        SQUELCH_LEVEL.append(defaultSquelchString);
+        SQUELCH_LEVEL.append(squelch);
 
         squelchSeekBar = (SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
         squelchTextView = (TextView) findViewById(R.id.squelch_text);
 
         squelchSeekBar.setMax(maxSquelchInt); // 0 maximum value for the Seek bar
-        squelchSeekBar.setProgress(defaultSquelchInt);
+        squelchSeekBar.setProgress(Integer.parseInt(squelch));
         squelchSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, squelchTextView, "squelch"));
     }
 
@@ -271,18 +266,17 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void volumeSeekBarInit() {
-        String defaultVolumeString = "100";
         int defaultVolumeInt = 100;
 
         //Init Volume Parameter Default
         //BEN, weird stuff happens if i dont reset at startup
         VOLUME.resetValues();
-        VOLUME.append(defaultVolumeString);
+        VOLUME.append(volume);
 
         volumeSeekBar = (SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
         volumeTextView = (TextView) findViewById(R.id.volume_text);
 
-        volumeSeekBar.setMax(defaultVolumeInt); // 100 maximum value for the Seek bar
+        volumeSeekBar.setMax(Integer.parseInt(volume)); // 100 maximum value for the Seek bar
         //volumeSeekBar.setProgress(defaultVolumeInt);
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, volumeTextView, "volume"));
     }
@@ -295,7 +289,6 @@ public class MainActivity extends AppCompatActivity
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
         executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), connection, handler));
-        //TODO Make Reconnect button to do connection.execute() if user needs to redefine IP ADDR and PORT. Settings persist after app is closed and reopened to invoke onCreate
     }
 
     /**
@@ -416,11 +409,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(MainActivity.this, SettingsPrefActivity.class));
             return true;
         } else if (id == R.id.reconnect) {
-//            connection.cancel(true);
-//            //TODO FIXME
-//            connection.disconnect();
-//            asyncConnectionInit();
-            asyncConnectionInit();
+            //connect/reconnect to server and reinit client
+            threadClientInit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -461,7 +451,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setModulationMode(String modulationMode) {
-        this.modulationMode = modulationMode;
+        MainActivity.modulationMode = modulationMode;
     }
 
     public static String getOverSampling() {
@@ -469,7 +459,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public  void setOverSampling(String overSampling) {
-        this.overSampling = overSampling;
+        MainActivity.overSampling = overSampling;
     }
 
     public static String getSampleRate() {
@@ -477,7 +467,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setSampleRate(String sampleRate) {
-        this.sampleRate = sampleRate;
+        MainActivity.sampleRate = sampleRate;
     }
 
     public static String getSquelch() {
@@ -485,7 +475,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public  void setSquelch(String squelch) {
-        this.squelch = squelch;
+        MainActivity.squelch = squelch;
     }
 
     public static String getResampleRate() {
@@ -493,7 +483,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setResampleRate(String resampleRate) {
-        this.resampleRate = resampleRate;
+        MainActivity.resampleRate = resampleRate;
     }
 
     public static String getGain() {
@@ -501,7 +491,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setGain(String gain) {
-        this.gain = gain;
+        MainActivity.gain = gain;
     }
 
     public static String getVolume() {
@@ -509,7 +499,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public  void setVolume(String volume) {
-        this.volume = volume;
+        MainActivity.volume = volume;
     }
 
     public static String getFrequency() {
@@ -517,6 +507,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public  void setFrequency(String frequency) {
-        this.frequency = frequency;
+        MainActivity.frequency = frequency;
     }
 }
