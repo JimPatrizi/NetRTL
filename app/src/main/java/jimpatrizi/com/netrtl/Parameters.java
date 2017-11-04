@@ -47,7 +47,7 @@ public enum Parameters {
 
     public void updateField(Activity mainActivity, final String newVal)
     {
-        if (uiElementSpecificType.equals(android.widget.TextView.class))
+        if (uiElementSpecificType.equals(android.support.v7.widget.AppCompatEditText.class))
         {
             mainActivity.runOnUiThread(new Runnable() {
                        @Override
