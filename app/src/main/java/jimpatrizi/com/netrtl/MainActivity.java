@@ -43,7 +43,7 @@ import static jimpatrizi.com.netrtl.Parameters.VOLUME;
  * @since 2017-10-02
  */
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+{
 
     /**
      * Default Parameter Inits
@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity
     private static String modulationMode = "wbfm";
     private static String sampleRate = "2400000";
     private static String resampleRate = "48000";
+    private static String ppmError = "0";
+    private static String deviceIndex = "0";
+    private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY
+
     private static String volume = "0";
     private static String squelch = "0";
     private static String gain = "-100";
@@ -138,13 +142,13 @@ public class MainActivity extends AppCompatActivity
         //included with project creation
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.setDrawerListener(toggle);
+//        toggle.syncState();
+//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+//        navigationView.setNavigationItemSelectedListener(this);
         //end included with project creation
 
 
@@ -304,7 +308,6 @@ public class MainActivity extends AppCompatActivity
      * This spinnerInit method gets the spinner id from content_main.xml,
      * populates spinner with WBFM, AM, USB, LSB
      *
-     * @return Nothing
      */
     public void spinnerInit() {
         //init spinner from id
@@ -357,7 +360,6 @@ public class MainActivity extends AppCompatActivity
      * Initializes buttons with click listeners for their respective values in the FREQUENCY Parameter,
      * Buttons include +/- 1k, 10k, 100k, 10MHz
      *
-     * @return Nothing.
      */
     public void buttonInit() {
 
@@ -390,12 +392,12 @@ public class MainActivity extends AppCompatActivity
     //included code below came with Navigation Pullout Activity
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//        } else {
+//            super.onBackPressed();
+//        }
     }
 
     @Override
@@ -429,31 +431,31 @@ public class MainActivity extends AppCompatActivity
         this.connection = connection;
     }
 
-    //TODO This is where the Advanced option needs to go, to start an intent that can set advanced settings
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
+//    //TODO This is where the Advanced option needs to go, to start an intent that can set advanced settings
+//    @SuppressWarnings("StatementWithEmptyBody")
+//    @Override
+//    public boolean onNavigationItemSelected(MenuItem item) {
+//        // Handle navigation view item clicks here.
+////        int id = item.getItemId();
+////
+////        if (id == R.id.nav_camera) {
+////            // Handle the camera action
+////        } else if (id == R.id.nav_gallery) {
+////
+////        } else if (id == R.id.nav_slideshow) {
+////
+////        } else if (id == R.id.nav_manage) {
+////
+////        } else if (id == R.id.nav_share) {
+////
+////        } else if (id == R.id.nav_send) {
+////
+////        }
+////
+////        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+////        drawer.closeDrawer(GravityCompat.START);
+//        return true;
+//    }
 
     public static String getModulationMode() {
         return modulationMode;
