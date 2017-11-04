@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity
     private static String modulationMode = "wbfm";
     private static String sampleRate = "2400000";
     private static String resampleRate = "48000";
-    private static String volume = "100";
+    private static String volume = "0";
     private static String squelch = "0";
     private static String gain = "-100";
     private static String frequency = "0";
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity
      */
     public void gainSeekBarInit() {
         int defaultGainInt = 0;
-        int maxGainInt = 58;
+        int maxGainInt = 50;
 
         //Init Volume Parameter Default
         TUNER_GAIN.resetValues();
