@@ -52,7 +52,7 @@ public enum Parameters {
             mainActivity.runOnUiThread(new Runnable() {
                        @Override
                        public void run() {
-                           ((android.widget.TextView) uiElement).setText(newVal);
+                           ((android.widget.EditText) uiElement).setText(newVal);
                        }
                    }
             );
