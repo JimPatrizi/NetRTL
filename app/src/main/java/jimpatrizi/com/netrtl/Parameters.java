@@ -87,7 +87,7 @@ public enum Parameters {
         return idx < values.size();
     }
 
-    //if indx doesnt exist, write the val and return true
+    //if indx doesnt exist, return false
     public boolean replaceIndex(int idx, String val)
     {
         if (!isIndexValid(idx))

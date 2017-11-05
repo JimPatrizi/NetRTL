@@ -64,6 +64,8 @@ public class ResponseListener implements Runnable {
     {
         // Each instance doesn't include the newline character
         String[] responseLines = response.split("\n");
+        boolean hasEnableOptionParamBeenReset = false;
+
         for (String line : responseLines)
         {
             // Skip special svr messages
@@ -80,15 +82,35 @@ public class ResponseListener implements Runnable {
                 {
                     if (param.getFunction().equals(command)) {
                         Log.d(TAG, "ASSOCIATED W/ PARAMETER: " + param.getFunction());
-                        param.resetValues();
+
+                        if (param.equals(Parameters.ENABLE_OPTION) && !hasEnableOptionParamBeenReset)
+                        {
+                            param.resetValues();
+                            hasEnableOptionParamBeenReset = true;
+                        }
+                        else if (!param.equals(Parameters.ENABLE_OPTION))
+                        {
+                            param.resetValues();
+                        }
+
                         param.append(value);
+
                         if (param.equals(Parameters.FREQUENCY))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if (param.equals(Parameters.SAMPLE_RATE))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if (param.equals(Parameters.RESAMPLE_RATE))
                         {
                             param.updateField(mainActivity, value);
                         }
                     }
                 }
-
             }
         }
     }

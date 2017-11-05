@@ -3,7 +3,9 @@ package jimpatrizi.com.netrtl;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ScrollView;
 
 import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
 
@@ -64,19 +67,27 @@ public class MainActivity extends AppCompatActivity
     private static String frequency = "0";
 
     private static String sqelchDelay = "10";
-    private static String[] enableoptions = {"edge", "dc", "deemp", "direct", "offset"};
     private static String ppmError = "0";
     private static String deviceIndex = "0";
     private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY
 
-
+    private static final int maxSquelchInt = 100; //TODO is this the max squelch?
+    private static final int maxGainInt = 50;
+    private static final int maxVolumeInt = 100;
 
 
     /**
      * Private Variables
      */
 
-
+    private final String DIRECT = "direct";
+    private final String EDGE = "edge";
+    private final String DC = "dc";
+    private final String DEEMP = "deemp";
+    private final String OFFSET = "offset";
+    static final String HZFIELD = "hz";
+    static final String SAMPLE = "sample";
+    static final String RESAMPLE = "resample";
 
 
 
@@ -84,22 +95,23 @@ public class MainActivity extends AppCompatActivity
     /**
      * Public Variables
      */
-    public AsyncConnection connection; //needs replaced for Ben's networking code.
-    public SeekBar volumeSeekBar;
-    public SeekBar squelchSeekBar;
-    public SeekBar gainSeekBar;
-    public Spinner modulationModeSpinner;
-    public Spinner oversampleModeSpinner;
-    public EditText hzInput;
+    SeekBar volumeSeekBar;
+    SeekBar squelchSeekBar;
+    SeekBar gainSeekBar;
+    Spinner modulationModeSpinner;
+    Spinner oversampleModeSpinner;
+    EditText hzInput;
+    EditText samplingRate;
+    EditText resamplingRate;
     private static TcpClient tcpClient;
     private static Thread tcpClientThread;
     private ResponseListener responseListener;
     private Thread responseListenerThread;
-    public Switch directSwitch;
-    public Switch edgeSwitch;
-    public Switch dcSwitch;
-    public Switch deempSwitch;
-    public Switch offsetSwitch;
+    Switch directSwitch;
+    Switch edgeSwitch;
+    Switch dcSwitch;
+    Switch deempSwitch;
+    Switch offsetSwitch;
 
 
     /**
@@ -146,6 +158,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @param savedInstanceState - saves previous instance data for when the user comes back to the app
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -170,6 +183,7 @@ public class MainActivity extends AppCompatActivity
         //end included with project creation
 
 
+
         //connect socket
         threadClientInit();
         //Init Execute button
@@ -190,25 +204,28 @@ public class MainActivity extends AppCompatActivity
         defaultParamInits();
 
         switchInits();
+
+//        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollview);
+//        scrollView.setOnScrollChangeListener(new ScrollChangeListener(getApplicationContext()));
     }
 
     public void switchInits()
     {
         //Enable Option switches
         directSwitch = (Switch) findViewById(R.id.direct);
-        directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("direct"));
+        directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DIRECT));
 
         edgeSwitch = (Switch) findViewById(R.id.edge);
-        edgeSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("edge"));
+        edgeSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(EDGE));
 
         dcSwitch = (Switch) findViewById(R.id.dc);
-        dcSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("dc"));
+        dcSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DC));
 
         deempSwitch = (Switch) findViewById(R.id.deemp);
-        deempSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("deemp"));
+        deempSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DEEMP));
 
         offsetSwitch = (Switch) findViewById(R.id.offset);
-        offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("offset"));
+        offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(OFFSET));
     }
 
     public void defaultParamInits()
@@ -230,11 +247,18 @@ public class MainActivity extends AppCompatActivity
 
     public void hzInputInit() {
         hzInput = (EditText) findViewById(R.id.hz_input);
+        samplingRate = (EditText) findViewById(R.id.sample_rate);
+        resamplingRate = (EditText) findViewById(R.id.resample_rate);
+
 
         // Associate this with the Frequency parameter
         Parameters.FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
+        Parameters.SAMPLE_RATE.setUiMembers(samplingRate, samplingRate.getClass());
+        Parameters.RESAMPLE_RATE.setUiMembers(resamplingRate, resamplingRate.getClass());
 
-        hzInput.addTextChangedListener(new HzInputTextWatcher(hzInput));
+        hzInput.addTextChangedListener(new InputTextWatcher(hzInput, HZFIELD));
+        samplingRate.addTextChangedListener(new InputTextWatcher(samplingRate, SAMPLE));
+        resamplingRate.addTextChangedListener(new InputTextWatcher(resamplingRate, RESAMPLE));
 
         //TODO use later for scannable frequencies?
         hzInput.setOnClickListener(new View.OnClickListener() {
@@ -284,9 +308,6 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void gainSeekBarInit() {
-        int defaultGainInt = 0;
-        int maxGainInt = 50;
-
         //Init Volume Parameter Default
         TUNER_GAIN.append(gain);
 
@@ -303,8 +324,6 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void squelchSeekBarInit() {
-        int maxSquelchInt = 100;
-
         //Init Volume Parameter Default
         SQUELCH_LEVEL.append(squelch);
 
@@ -320,8 +339,6 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void volumeSeekBarInit() {
-        int maxVolumeInt = 100;
-
         //Init Volume Parameter Default
         //BEN, weird stuff happens if i dont reset at startup
         VOLUME.append(volume);
@@ -489,11 +506,6 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-
-    public void setSocketConnection(AsyncConnection connection) {
-        this.connection = connection;
-    }
-
 //    //TODO This is where the Advanced option needs to go, to start an intent that can set advanced settings
 //    @SuppressWarnings("StatementWithEmptyBody")
 //    @Override
