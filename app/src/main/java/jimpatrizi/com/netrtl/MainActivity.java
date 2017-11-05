@@ -300,6 +300,7 @@ public class MainActivity extends AppCompatActivity
             //TODO Kill old thread
         } catch (IOException exception) {
             Log.e(TAG, "UNABLE TO CREATE SOCKET TO CLIENT");
+            Toast.makeText(context, "Unable to connect to: " + ip_address, Toast.LENGTH_SHORT).show();
         }
         //end of open socket routine
     }
@@ -538,6 +539,18 @@ public class MainActivity extends AppCompatActivity
 
     public void setModulationMode(String modulationMode) {
         MainActivity.modulationMode = modulationMode;
+    }
+
+    public static boolean isConnected()
+    {
+        if(getTcpClient() != null && tcpClientThread != null && tcpClientThread.isAlive())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public static String getOverSampling() {
