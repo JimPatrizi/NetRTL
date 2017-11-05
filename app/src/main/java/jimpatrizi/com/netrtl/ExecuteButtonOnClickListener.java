@@ -12,7 +12,6 @@ import android.view.View;
 
 public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private Context context;
-    public AsyncConnection connection;
 
     private String frequency;
     private String modulationMode;
@@ -24,18 +23,16 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
     private String volume;
 
     String dameon = "";
-    private ConnectionHandle handler;
+
     private String TAG = getClass().getName();
 
 
 
-    ExecuteButtonOnClickListener(Context context, AsyncConnection connection, ConnectionHandle handler){
+    ExecuteButtonOnClickListener(Context context){
         this.context = context;
-        this.connection = connection;
-        this.handler = handler;
     }
 
-
+    //TODO Bug for Enable Options, after sending them with execute once, only the last indexed param remains
     @Override
     public void onClick(View view) {
 

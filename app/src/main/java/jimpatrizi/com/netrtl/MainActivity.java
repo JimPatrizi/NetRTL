@@ -18,9 +18,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,10 +30,13 @@ import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
 
 import java.io.IOException;
 
+import static jimpatrizi.com.netrtl.Parameters.ENABLE_OPTION;
 import static jimpatrizi.com.netrtl.Parameters.FREQUENCY;
 import static jimpatrizi.com.netrtl.Parameters.MODULATION_MODE;
+import static jimpatrizi.com.netrtl.Parameters.OVERSAMPLING;
 import static jimpatrizi.com.netrtl.Parameters.RESAMPLE_RATE;
 import static jimpatrizi.com.netrtl.Parameters.SAMPLE_RATE;
+import static jimpatrizi.com.netrtl.Parameters.SQUELCH_DELAY;
 import static jimpatrizi.com.netrtl.Parameters.SQUELCH_LEVEL;
 import static jimpatrizi.com.netrtl.Parameters.TUNER_GAIN;
 import static jimpatrizi.com.netrtl.Parameters.VOLUME;
@@ -52,21 +57,27 @@ public class MainActivity extends AppCompatActivity
     private static String modulationMode = "wbfm";
     private static String sampleRate = "2400000";
     private static String resampleRate = "48000";
+    private static String overSampling = "4";
+    private static String volume = "0";
+    private static String squelch = "0";
+    private static String gain = "-100"; //ACG enables as per rtl_fm
+    private static String frequency = "0";
+
+    private static String sqelchDelay = "10";
+    private static String[] enableoptions = {"edge", "dc", "deemp", "direct", "offset"};
     private static String ppmError = "0";
     private static String deviceIndex = "0";
     private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY
 
-    private static String volume = "0";
-    private static String squelch = "0";
-    private static String gain = "-100";
-    private static String frequency = "0";
+
+
 
     /**
      * Private Variables
      */
 
 
-    private static String overSampling;
+
 
 
 
@@ -78,11 +89,18 @@ public class MainActivity extends AppCompatActivity
     public SeekBar squelchSeekBar;
     public SeekBar gainSeekBar;
     public Spinner modulationModeSpinner;
+    public Spinner oversampleModeSpinner;
     public EditText hzInput;
     private static TcpClient tcpClient;
     private static Thread tcpClientThread;
     private ResponseListener responseListener;
     private Thread responseListenerThread;
+    public Switch directSwitch;
+    public Switch edgeSwitch;
+    public Switch dcSwitch;
+    public Switch deempSwitch;
+    public Switch offsetSwitch;
+
 
     /**
      * For Logcat debugging
@@ -168,12 +186,29 @@ public class MainActivity extends AppCompatActivity
         gainSeekBarInit();
 
         squelchSeekBarInit();
+
         defaultParamInits();
 
+        switchInits();
+    }
 
+    public void switchInits()
+    {
+        //Enable Option switches
+        directSwitch = (Switch) findViewById(R.id.direct);
+        directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("direct"));
 
+        edgeSwitch = (Switch) findViewById(R.id.edge);
+        edgeSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("edge"));
 
+        dcSwitch = (Switch) findViewById(R.id.dc);
+        dcSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("dc"));
 
+        deempSwitch = (Switch) findViewById(R.id.deemp);
+        deempSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("deemp"));
+
+        offsetSwitch = (Switch) findViewById(R.id.offset);
+        offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener("offset"));
     }
 
     public void defaultParamInits()
@@ -183,6 +218,14 @@ public class MainActivity extends AppCompatActivity
         MODULATION_MODE.append(modulationMode);
         RESAMPLE_RATE.append(resampleRate);
         SAMPLE_RATE.append(sampleRate);
+        OVERSAMPLING.append(overSampling);
+        SQUELCH_DELAY.append(sqelchDelay);
+
+//        private static String ppmError = "0";
+//        private static String deviceIndex = "0";
+//        private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY
+
+
     }
 
     public void hzInputInit() {
@@ -245,7 +288,6 @@ public class MainActivity extends AppCompatActivity
         int maxGainInt = 50;
 
         //Init Volume Parameter Default
-        TUNER_GAIN.resetValues();
         TUNER_GAIN.append(gain);
 
         gainSeekBar = (SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
@@ -264,7 +306,6 @@ public class MainActivity extends AppCompatActivity
         int maxSquelchInt = 100;
 
         //Init Volume Parameter Default
-        SQUELCH_LEVEL.resetValues();
         SQUELCH_LEVEL.append(squelch);
 
         squelchSeekBar = (SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
@@ -279,17 +320,16 @@ public class MainActivity extends AppCompatActivity
      * Sets volume bar's seekbar methods and listener
      */
     public void volumeSeekBarInit() {
-        int defaultVolumeInt = 100;
+        int maxVolumeInt = 100;
 
         //Init Volume Parameter Default
         //BEN, weird stuff happens if i dont reset at startup
-        VOLUME.resetValues();
         VOLUME.append(volume);
 
         volumeSeekBar = (SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
         volumeTextView = (TextView) findViewById(R.id.volume_text);
 
-        volumeSeekBar.setMax(Integer.parseInt(volume)); // 100 maximum value for the Seek bar
+        volumeSeekBar.setMax(maxVolumeInt); // 100 maximum value for the Seek bar
         //volumeSeekBar.setProgress(defaultVolumeInt);
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, volumeTextView, "volume"));
     }
@@ -301,7 +341,7 @@ public class MainActivity extends AppCompatActivity
         Button executeButton = (Button) findViewById(R.id.execute);
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext(), connection, handler));
+        executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext()));
     }
 
     /**
@@ -312,16 +352,25 @@ public class MainActivity extends AppCompatActivity
     public void spinnerInit() {
         //init spinner from id
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
+        oversampleModeSpinner = (Spinner) findViewById(R.id.oversamp_spinner);
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
                 "wbfm", "fm", "am", "usb", "lsb", "raw"
         };
+        String[] overSampling = new String[]{
+                "1", "2", "3", "4"
+        };
         //set array adapter to set the strings inside spinner obect
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+        ArrayAdapter<String> adapterMod = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, modeSpinnerStrings);
-        modulationModeSpinner.setAdapter(adapter);
+        ArrayAdapter<String> adapterSample = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, overSampling);
+        modulationModeSpinner.setAdapter(adapterMod);
+        oversampleModeSpinner.setAdapter(adapterSample);
+        oversampleModeSpinner.setSelection(3);
         //formats spinner to be nice clickable size
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterMod.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterSample.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         modulationModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -333,6 +382,20 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 //do Nothing?
+            }
+        });
+
+        oversampleModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String newsamplingMode = getModulationModeSpinner(oversampleModeSpinner);
+                OVERSAMPLING.replaceIndex(0, newsamplingMode);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
