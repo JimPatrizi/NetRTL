@@ -60,10 +60,10 @@ public class MainActivity extends AppCompatActivity
     private static String modulationMode = "wbfm";
     private static String sampleRate = "2400000";
     private static String resampleRate = "48000";
-    private static String overSampling = "4";
+    private static String overSampling = "-1";
     private static String volume = "0";
     private static String squelch = "0";
-    private static String gain = "-100"; //ACG enables as per rtl_fm
+    private static String gain = "-100"; //ACG enables as per rtl_fm?
     private static String frequency = "0";
 
     private static String sqelchDelay = "10";
@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity
                 "wbfm", "fm", "am", "usb", "lsb", "raw"
         };
         String[] overSampling = new String[]{
-                "1", "2", "3", "4"
+                "-1", "1", "2", "3", "4"
         };
         //set array adapter to set the strings inside spinner obect
         ArrayAdapter<String> adapterMod = new ArrayAdapter<>(this,
@@ -385,7 +385,7 @@ public class MainActivity extends AppCompatActivity
                 android.R.layout.simple_spinner_item, overSampling);
         modulationModeSpinner.setAdapter(adapterMod);
         oversampleModeSpinner.setAdapter(adapterSample);
-        oversampleModeSpinner.setSelection(3);
+        oversampleModeSpinner.setSelection(0);
         //formats spinner to be nice clickable size
         adapterMod.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterSample.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
