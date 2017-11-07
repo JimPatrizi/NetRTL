@@ -29,7 +29,7 @@ public enum Parameters {
 
     private final String FUNCTION;
     private List<String> values = new ArrayList<>();
-    private android.view.View uiElement;
+    private Object uiElement;
     private Class uiElementSpecificType;
 
     Parameters(final String function)
@@ -42,7 +42,7 @@ public enum Parameters {
         values.add(val);
     }
 
-    public void setUiMembers(android.view.View uiElement, Class uiElementSpecificType)
+    public void setUiMembers(Object uiElement, Class uiElementSpecificType)
     {
         this.uiElement = uiElement;
         this.uiElementSpecificType = uiElementSpecificType;
@@ -60,6 +60,15 @@ public enum Parameters {
                    }
             );
         }
+        if (uiElementSpecificType.equals(EnableOptionUiMatcher.class))
+        {
+            ((EnableOptionUiMatcher) uiElement).enableSwitchByString(mainActivity, newVal);
+        }
+    }
+
+    public Object getUiElement()
+    {
+        return uiElement;
     }
 
     public boolean remove(String val)

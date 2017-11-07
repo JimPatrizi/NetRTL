@@ -66,6 +66,9 @@ public class ResponseListener implements Runnable {
         String[] responseLines = response.split("\n");
         boolean hasEnableOptionParamBeenReset = false;
 
+        // Reset all enable option strings
+        ((EnableOptionUiMatcher) Parameters.ENABLE_OPTION.getUiElement()).uncheckAll(mainActivity);
+
         for (String line : responseLines)
         {
             // Skip special svr messages
@@ -106,6 +109,11 @@ public class ResponseListener implements Runnable {
                         }
 
                         else if (param.equals(Parameters.RESAMPLE_RATE))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if (param.equals(Parameters.ENABLE_OPTION))
                         {
                             param.updateField(mainActivity, value);
                         }

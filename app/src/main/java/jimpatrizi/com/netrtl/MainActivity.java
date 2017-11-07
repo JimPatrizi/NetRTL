@@ -6,10 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,14 +16,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ScrollView;
 
 import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
 
@@ -112,6 +106,7 @@ public class MainActivity extends AppCompatActivity
     Switch dcSwitch;
     Switch deempSwitch;
     Switch offsetSwitch;
+    private final EnableOptionUiMatcher enableOptionUiMatcher = new EnableOptionUiMatcher();
 
 
     /**
@@ -211,21 +206,28 @@ public class MainActivity extends AppCompatActivity
 
     public void switchInits()
     {
+        ENABLE_OPTION.setUiMembers(enableOptionUiMatcher, enableOptionUiMatcher.getClass());
+
         //Enable Option switches
         directSwitch = (Switch) findViewById(R.id.direct);
         directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DIRECT));
+        enableOptionUiMatcher.add(DIRECT, directSwitch);
 
         edgeSwitch = (Switch) findViewById(R.id.edge);
         edgeSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(EDGE));
+        enableOptionUiMatcher.add(EDGE, edgeSwitch);
 
         dcSwitch = (Switch) findViewById(R.id.dc);
         dcSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DC));
+        enableOptionUiMatcher.add(DC, dcSwitch);
 
         deempSwitch = (Switch) findViewById(R.id.deemp);
         deempSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DEEMP));
+        enableOptionUiMatcher.add(DEEMP, deempSwitch);
 
         offsetSwitch = (Switch) findViewById(R.id.offset);
         offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(OFFSET));
+        enableOptionUiMatcher.add(OFFSET, offsetSwitch);
     }
 
     public void defaultParamInits()
@@ -543,14 +545,7 @@ public class MainActivity extends AppCompatActivity
 
     public static boolean isConnected()
     {
-        if(getTcpClient() != null && tcpClientThread != null && tcpClientThread.isAlive())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return getTcpClient() != null && tcpClientThread != null && tcpClientThread.isAlive();
     }
 
     public static String getOverSampling() {
