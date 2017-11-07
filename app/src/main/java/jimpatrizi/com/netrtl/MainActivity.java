@@ -200,6 +200,8 @@ public class MainActivity extends AppCompatActivity
 
         switchInits();
 
+        stopButtonInit();
+
 //        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollview);
 //        scrollView.setOnScrollChangeListener(new ScrollChangeListener(getApplicationContext()));
     }
@@ -316,6 +318,7 @@ public class MainActivity extends AppCompatActivity
 
         gainSeekBar = (SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
         gainTextView = (TextView) findViewById(R.id.gain_text);
+        Parameters.TUNER_GAIN.setUiMembers(gainSeekBar, gainSeekBar.getClass());
 
         gainSeekBar.setMax(maxGainInt); // 0 maximum value for the Seek bar
         gainSeekBar.setProgress(Integer.parseInt(gain));
@@ -332,6 +335,7 @@ public class MainActivity extends AppCompatActivity
 
         squelchSeekBar = (SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
         squelchTextView = (TextView) findViewById(R.id.squelch_text);
+        Parameters.SQUELCH_LEVEL.setUiMembers(squelchSeekBar, squelchSeekBar.getClass());
 
         squelchSeekBar.setMax(maxSquelchInt); // 0 maximum value for the Seek bar
         squelchSeekBar.setProgress(Integer.parseInt(squelch));
@@ -348,6 +352,7 @@ public class MainActivity extends AppCompatActivity
 
         volumeSeekBar = (SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
         volumeTextView = (TextView) findViewById(R.id.volume_text);
+        Parameters.VOLUME.setUiMembers(volumeSeekBar, volumeSeekBar.getClass());
 
         volumeSeekBar.setMax(maxVolumeInt); // 100 maximum value for the Seek bar
         //volumeSeekBar.setProgress(defaultVolumeInt);
@@ -364,6 +369,17 @@ public class MainActivity extends AppCompatActivity
         executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext()));
     }
 
+    public void stopButtonInit()
+    {
+        Button stopButton = (Button) findViewById(R.id.stop);
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tcpClient.sendToServer("STOP");
+            }
+        });
+    }
+
     /**
      * This spinnerInit method gets the spinner id from content_main.xml,
      * populates spinner with WBFM, AM, USB, LSB
@@ -373,6 +389,8 @@ public class MainActivity extends AppCompatActivity
         //init spinner from id
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         oversampleModeSpinner = (Spinner) findViewById(R.id.oversamp_spinner);
+        Parameters.MODULATION_MODE.setUiMembers(modulationModeSpinner, modulationModeSpinner.getClass());
+        Parameters.OVERSAMPLING.setUiMembers(oversampleModeSpinner, oversampleModeSpinner.getClass());
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
                 "wbfm", "fm", "am", "usb", "lsb", "raw"

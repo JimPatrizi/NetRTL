@@ -1,6 +1,7 @@
 package jimpatrizi.com.netrtl;
 
 import android.app.Activity;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,20 @@ public enum Parameters {
         this.uiElementSpecificType = uiElementSpecificType;
     }
 
+    //private method of your class
+    protected int getIndex(Spinner spinner, String string)
+    {
+        int index = 0;
+
+        for (int i=0;i<spinner.getCount();i++){
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(string)){
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
     public void updateField(Activity mainActivity, final String newVal)
     {
         if (uiElementSpecificType.equals(android.support.v7.widget.AppCompatEditText.class))
@@ -63,6 +78,29 @@ public enum Parameters {
         if (uiElementSpecificType.equals(EnableOptionUiMatcher.class))
         {
             ((EnableOptionUiMatcher) uiElement).enableSwitchByString(mainActivity, newVal);
+        }
+
+        if (uiElementSpecificType.equals(android.support.v7.widget.AppCompatSeekBar.class))
+        {
+            final int newValInt = Integer.parseInt(newVal);
+            mainActivity.runOnUiThread(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               ((android.widget.SeekBar) uiElement).setProgress(newValInt);
+                                           }
+                                       }
+            );
+        }
+
+        if (uiElementSpecificType.equals(android.support.v7.widget.AppCompatSpinner.class))
+        {
+            mainActivity.runOnUiThread(new Runnable() {
+                                           @Override
+                                           public void run() {
+                                               ((android.widget.Spinner) uiElement).setSelection(getIndex((android.widget.Spinner) uiElement, newVal));
+                                           }
+                                       }
+            );
         }
     }
 

@@ -117,6 +117,32 @@ public class ResponseListener implements Runnable {
                         {
                             param.updateField(mainActivity, value);
                         }
+
+                        else if (param.equals(Parameters.MODULATION_MODE))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if(param.equals(Parameters.OVERSAMPLING))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if(param.equals(Parameters.VOLUME))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if(param.equals(Parameters.SQUELCH_LEVEL))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
+                        else if(param.equals(Parameters.TUNER_GAIN))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+
                     }
                 }
             }
