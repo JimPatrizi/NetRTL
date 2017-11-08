@@ -27,10 +27,13 @@ import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
 
 import java.io.IOException;
 
+import static jimpatrizi.com.netrtl.Parameters.ATAN_MATH;
 import static jimpatrizi.com.netrtl.Parameters.ENABLE_OPTION;
+import static jimpatrizi.com.netrtl.Parameters.FIR_SIZE;
 import static jimpatrizi.com.netrtl.Parameters.FREQUENCY;
 import static jimpatrizi.com.netrtl.Parameters.MODULATION_MODE;
 import static jimpatrizi.com.netrtl.Parameters.OVERSAMPLING;
+import static jimpatrizi.com.netrtl.Parameters.PPM_ERROR;
 import static jimpatrizi.com.netrtl.Parameters.RESAMPLE_RATE;
 import static jimpatrizi.com.netrtl.Parameters.SAMPLE_RATE;
 import static jimpatrizi.com.netrtl.Parameters.SQUELCH_DELAY;
@@ -51,7 +54,7 @@ public class MainActivity extends AppCompatActivity
      * Default Parameter Inits
      */
 
-    private static String modulationMode = "wbfm";
+    private static String modulationMode = "fm";
     private static String sampleRate = "2400000";
     private static String resampleRate = "48000";
     private static String overSampling = "-1";
@@ -63,9 +66,10 @@ public class MainActivity extends AppCompatActivity
     private static String sqelchDelay = "10";
     private static String ppmError = "0";
     private static String deviceIndex = "0";
-    private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY
+    private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY std/fast/lut are atan params and put on main screen
+    private static String firSize = "0"; //FIR_SIZE
 
-    private static final int maxSquelchInt = 100; //TODO is this the max squelch?
+    private static final int maxSquelchInt = 500; //TODO is this the max squelch?
     private static final int maxGainInt = 50;
     private static final int maxVolumeInt = 100;
 
@@ -82,6 +86,8 @@ public class MainActivity extends AppCompatActivity
     static final String HZFIELD = "hz";
     static final String SAMPLE = "sample";
     static final String RESAMPLE = "resample";
+    static final String PPM = "ppm";
+    static final String DELAY = "delay";
 
 
 
@@ -94,9 +100,13 @@ public class MainActivity extends AppCompatActivity
     SeekBar gainSeekBar;
     Spinner modulationModeSpinner;
     Spinner oversampleModeSpinner;
+    Spinner firModeSpinner;
+    Spinner atanMathSpinner;
     EditText hzInput;
     EditText samplingRate;
     EditText resamplingRate;
+    EditText ppmErrorText;
+    EditText squelchDelayText;
     private static TcpClient tcpClient;
     private static Thread tcpClientThread;
     private ResponseListener responseListener;
@@ -241,10 +251,11 @@ public class MainActivity extends AppCompatActivity
         SAMPLE_RATE.append(sampleRate);
         OVERSAMPLING.append(overSampling);
         SQUELCH_DELAY.append(sqelchDelay);
+        PPM_ERROR.append(ppmError);
+        ATAN_MATH.append(atanMath);
+        FIR_SIZE.append(firSize);
 
-//        private static String ppmError = "0";
-//        private static String deviceIndex = "0";
-//        private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY
+        //TODO ADD SCANNABLE FREQUENCY
 
 
     }
@@ -253,16 +264,23 @@ public class MainActivity extends AppCompatActivity
         hzInput = (EditText) findViewById(R.id.hz_input);
         samplingRate = (EditText) findViewById(R.id.sample_rate);
         resamplingRate = (EditText) findViewById(R.id.resample_rate);
+        ppmErrorText = (EditText) findViewById(R.id.ppm_error);
+        squelchDelayText = (EditText) findViewById(R.id.squelch_delay);
 
 
         // Associate this with the Frequency parameter
         Parameters.FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
         Parameters.SAMPLE_RATE.setUiMembers(samplingRate, samplingRate.getClass());
         Parameters.RESAMPLE_RATE.setUiMembers(resamplingRate, resamplingRate.getClass());
+        Parameters.PPM_ERROR.setUiMembers(ppmErrorText, ppmErrorText.getClass());
+        Parameters.SQUELCH_DELAY.setUiMembers(squelchDelayText, squelchDelayText.getClass());
+
 
         hzInput.addTextChangedListener(new InputTextWatcher(hzInput, HZFIELD));
         samplingRate.addTextChangedListener(new InputTextWatcher(samplingRate, SAMPLE));
         resamplingRate.addTextChangedListener(new InputTextWatcher(resamplingRate, RESAMPLE));
+        ppmErrorText.addTextChangedListener(new InputTextWatcher(ppmErrorText, PPM));
+        squelchDelayText.addTextChangedListener(new InputTextWatcher(squelchDelayText, DELAY));
 
         //TODO use later for scannable frequencies?
         hzInput.setOnClickListener(new View.OnClickListener() {
@@ -337,7 +355,7 @@ public class MainActivity extends AppCompatActivity
         squelchTextView = (TextView) findViewById(R.id.squelch_text);
         Parameters.SQUELCH_LEVEL.setUiMembers(squelchSeekBar, squelchSeekBar.getClass());
 
-        squelchSeekBar.setMax(maxSquelchInt); // 0 maximum value for the Seek bar
+        squelchSeekBar.setMax(maxSquelchInt);
         squelchSeekBar.setProgress(Integer.parseInt(squelch));
         squelchSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, squelchTextView, "squelch"));
     }
@@ -389,26 +407,48 @@ public class MainActivity extends AppCompatActivity
         //init spinner from id
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         oversampleModeSpinner = (Spinner) findViewById(R.id.oversamp_spinner);
+        atanMathSpinner = (Spinner) findViewById(R.id.atan_spinner);
+        firModeSpinner = (Spinner) findViewById(R.id.fir_spinner);
+
         Parameters.MODULATION_MODE.setUiMembers(modulationModeSpinner, modulationModeSpinner.getClass());
         Parameters.OVERSAMPLING.setUiMembers(oversampleModeSpinner, oversampleModeSpinner.getClass());
+        Parameters.ATAN_MATH.setUiMembers(atanMathSpinner, atanMathSpinner.getClass());
+        Parameters.FIR_SIZE.setUiMembers(firModeSpinner, firModeSpinner.getClass());
+
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
-                "wbfm", "fm", "am", "usb", "lsb", "raw"
+                "fm", "am", "usb", "lsb", "wbfm", "raw",
         };
         String[] overSampling = new String[]{
                 "-1", "1", "2", "3", "4"
+        };
+
+        String[] atanMath = new String[]{
+                "std", "lut", "fast"
+        };
+
+        String[] fir = new String[]{
+                "0", "9", "-1"
         };
         //set array adapter to set the strings inside spinner obect
         ArrayAdapter<String> adapterMod = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, modeSpinnerStrings);
         ArrayAdapter<String> adapterSample = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, overSampling);
+        ArrayAdapter<String> adapterATAN = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, atanMath);
+        ArrayAdapter<String> adapterFIR = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, fir);
         modulationModeSpinner.setAdapter(adapterMod);
         oversampleModeSpinner.setAdapter(adapterSample);
-        oversampleModeSpinner.setSelection(0);
+        oversampleModeSpinner.setSelection(1);
+        atanMathSpinner.setAdapter(adapterATAN);
+        firModeSpinner.setAdapter(adapterFIR);
         //formats spinner to be nice clickable size
         adapterMod.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterSample.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterATAN.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapterFIR.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         modulationModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -433,6 +473,32 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        atanMathSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String newsamplingMode = getModulationModeSpinner(atanMathSpinner);
+                ATAN_MATH.replaceIndex(0, newsamplingMode);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        firModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String newsamplingMode = getModulationModeSpinner(firModeSpinner);
+                FIR_SIZE.replaceIndex(0, newsamplingMode);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
         });
@@ -523,6 +589,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.reconnect) {
             //connect/reconnect to server and reinit client
             threadClientInit();
+        } else if (id == R.id.clear)
+        {
+            tcpClient.sendToServer("CLEAR");
         }
 
         return super.onOptionsItemSelected(item);

@@ -7,8 +7,9 @@
     <string name="default_port_number">2832</string>
     <string name="key_ip_name">key_ip_name</string>
     <string name="key_port_name">key_port_name</string>
-
+    <string name="key_ppm">key_pmm</string>
 
     <string name="action_settings">Settings</string>
     <string name="connect_setting">Connect</string>
+    <string name="clear_setting">Clear</string>
 </resources>

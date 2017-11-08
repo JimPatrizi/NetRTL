@@ -52,6 +52,19 @@ public class InputTextWatcher implements TextWatcher
             inputString = input.getText().toString();
             Parameters.RESAMPLE_RATE.replaceIndex(0, inputString);
         }
+
+        else if(type.equals(MainActivity.PPM))
+        {
+            inputString = input.getText().toString();
+            Parameters.PPM_ERROR.replaceIndex(0, inputString);
+        }
+        else if(type.equals(MainActivity.DELAY))
+        {
+            inputString = input.getText().toString();
+            Parameters.SQUELCH_DELAY.replaceIndex(0, inputString);
+        }
+
+
     }
 }
 

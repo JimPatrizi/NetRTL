@@ -142,7 +142,22 @@ public class ResponseListener implements Runnable {
                         {
                             param.updateField(mainActivity, value);
                         }
-
+                        else if(param.equals(Parameters.ATAN_MATH))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+                        else if(param.equals(Parameters.FIR_SIZE))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+                        else if(param.equals(Parameters.PPM_ERROR))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
+                        else if(param.equals(Parameters.SQUELCH_DELAY))
+                        {
+                            param.updateField(mainActivity, value);
+                        }
                     }
                 }
             }

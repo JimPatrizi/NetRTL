@@ -20,13 +20,13 @@ public class SettingsPrefActivity extends AppCompatPreferenceActivity
     /**
      * Shared Preference Editor object
      */
-    private static SharedPreferences.Editor editor;
+    public static SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        editor = getSharedPreferences("pref_main", MODE_PRIVATE).edit();
+        editor = getSharedPreferences("pref_main", MODE_NO_LOCALIZED_COLLATORS).edit();
 
         // load settings fragment
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MainPreferenceFragment()).commit();
@@ -46,6 +46,7 @@ public class SettingsPrefActivity extends AppCompatPreferenceActivity
 
             // port edittext preference change listener
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_port_name)));
+
         }
 
 
@@ -65,7 +66,7 @@ public class SettingsPrefActivity extends AppCompatPreferenceActivity
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String stringValue = newValue.toString();
-
+                Parameters.PPM_ERROR.setUiMembers(preference, preference.getClass());
                  if (preference instanceof EditTextPreference) {
                      if (preference.getKey().equals("key_ip_name")) {
                          // update the changed ip name to summary filed

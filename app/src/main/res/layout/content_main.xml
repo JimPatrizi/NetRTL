@@ -14,6 +14,65 @@
         android:layout_height="wrap_content">
 
 
+        <EditText
+            android:id="@+id/ppm_error"
+            style="@style/Widget.AppCompat.EditText"
+            android:layout_width="147dp"
+            android:layout_height="41dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="84dp"
+            android:ems="10"
+            android:hint="Samples per second"
+            android:inputType="number"
+            android:selectAllOnFocus="true"
+            android:text="0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sample_rate" />
+
+        <EditText
+            android:id="@+id/squelch_delay"
+            style="@style/Widget.AppCompat.EditText"
+            android:layout_width="147dp"
+            android:layout_height="41dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="136dp"
+            android:ems="10"
+            android:hint="Samples per second"
+            android:inputType="number"
+            android:selectAllOnFocus="true"
+            android:text="10"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sample_rate" />
+
+        <Spinner
+            android:id="@+id/atan_spinner"
+            android:layout_width="96dp"
+            android:layout_height="98dp"
+            android:layout_marginEnd="62dp"
+            app:layout_constraintRight_toLeftOf="@+id/fir_textview"
+            tools:layout_constraintTop_creator="1"
+            tools:layout_constraintRight_creator="1"
+            tools:layout_constraintBottom_creator="1"
+            android:layout_marginStart="61dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_constraintLeft_creator="1"
+            app:layout_constraintLeft_toLeftOf="@+id/edge"
+            app:layout_constraintTop_toTopOf="@+id/oversamp_spinner"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Spinner
+            android:id="@+id/fir_spinner"
+            android:layout_width="78dp"
+            android:layout_height="45dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="118dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/offset" />
+
         <SeekBar
             android:id="@+id/gain_seek"
             android:layout_width="0dp"
@@ -86,11 +145,11 @@
         <EditText
             android:id="@+id/sample_rate"
             style="@style/Widget.AppCompat.EditText"
-            android:layout_width="0dp"
-            android:layout_height="42dp"
+            android:layout_width="146dp"
+            android:layout_height="39dp"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="37dp"
+            android:layout_marginTop="38dp"
             android:ems="10"
             android:hint="Samples per second"
             android:inputType="number"
@@ -102,8 +161,8 @@
         <EditText
             android:id="@+id/resample_rate"
             style="@style/Widget.AppCompat.EditText"
-            android:layout_width="212dp"
-            android:layout_height="50dp"
+            android:layout_width="147dp"
+            android:layout_height="41dp"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="35dp"
@@ -374,7 +433,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
-            android:text="Sampling Rate (Bandwidth)"
+            android:text="Sampling Rate (Sample/s)"
             app:layout_constraintBottom_toTopOf="@+id/sample_rate"
             app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -392,7 +451,7 @@
             android:id="@+id/oversamp_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="9dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:text="Oversampling"
@@ -419,6 +478,55 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/execute"
             tools:layout_constraintRight_creator="1"
+            tools:layout_constraintTop_creator="1" />
+
+        <TextView
+            android:id="@+id/fir_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FIR Size"
+            tools:layout_constraintRight_creator="1"
+            tools:layout_constraintBottom_creator="1"
+            app:layout_constraintBottom_toTopOf="@+id/fir_spinner"
+            android:layout_marginEnd="1dp"
+            app:layout_constraintRight_toRightOf="@+id/fir_spinner"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/atan_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ATAN Math"
+            tools:layout_constraintBottom_creator="1"
+            app:layout_constraintBottom_toTopOf="@+id/atan_spinner"
+            android:layout_marginStart="21dp"
+            tools:layout_constraintLeft_creator="1"
+            android:layout_marginBottom="6dp"
+            app:layout_constraintLeft_toLeftOf="@+id/atan_spinner" />
+
+        <TextView
+            android:id="@+id/text_ppm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="PPM Error"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            tools:layout_constraintTop_creator="1"
+            tools:layout_constraintBottom_creator="1"
+            app:layout_constraintBottom_toTopOf="@+id/ppm_error"
+            app:layout_constraintTop_toTopOf="@+id/ppm_error"
+            app:layout_constraintVertical_bias="0.411" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:text="Squelch Delay"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ppm_error"
             tools:layout_constraintTop_creator="1" />
 
     </android.support.constraint.ConstraintLayout>
