@@ -47,21 +47,13 @@
 
         <Spinner
             android:id="@+id/atan_spinner"
-            android:layout_width="96dp"
-            android:layout_height="98dp"
-            android:layout_marginEnd="62dp"
-            app:layout_constraintRight_toLeftOf="@+id/fir_textview"
-            tools:layout_constraintTop_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:layout_constraintBottom_creator="1"
-            android:layout_marginStart="61dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:layout_constraintLeft_creator="1"
-            app:layout_constraintLeft_toLeftOf="@+id/edge"
-            app:layout_constraintTop_toTopOf="@+id/oversamp_spinner"
-            app:layout_constraintHorizontal_bias="0.496"
-            app:layout_constraintVertical_bias="0.0" />
-
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="100dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/oversamp_spinner" />
         <Spinner
             android:id="@+id/fir_spinner"
             android:layout_width="78dp"
@@ -148,7 +140,7 @@
             android:layout_height="39dp"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="38dp"
+            android:layout_marginTop="39dp"
             android:ems="10"
             android:hint="Samples per second"
             android:inputType="number"
@@ -180,7 +172,7 @@
             android:layout_width="0dp"
             android:layout_height="42dp"
             android:layout_marginBottom="44dp"
-            android:layout_marginEnd="9dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
@@ -462,7 +454,7 @@
             android:layout_width="78dp"
             android:layout_height="45dp"
             android:layout_marginRight="16dp"
-            android:layout_marginTop="46dp"
+            android:layout_marginTop="40dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/offset"
             android:layout_marginEnd="16dp" />
@@ -492,18 +484,6 @@
             android:layout_marginBottom="4dp" />
 
         <TextView
-            android:id="@+id/atan_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ATAN Math"
-            tools:layout_constraintBottom_creator="1"
-            app:layout_constraintBottom_toTopOf="@+id/atan_spinner"
-            android:layout_marginStart="21dp"
-            tools:layout_constraintLeft_creator="1"
-            android:layout_marginBottom="6dp"
-            app:layout_constraintLeft_toLeftOf="@+id/atan_spinner" />
-
-        <TextView
             android:id="@+id/text_ppm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -527,6 +507,17 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ppm_error"
             tools:layout_constraintTop_creator="1" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:text="ATAN Math"
+            app:layout_constraintBottom_toTopOf="@+id/atan_spinner"
+            app:layout_constraintRight_toRightOf="@+id/atan_spinner"
+            tools:layout_constraintBottom_creator="1"
+            tools:layout_constraintRight_creator="1" />
 
     </android.support.constraint.ConstraintLayout>
 
