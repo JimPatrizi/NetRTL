@@ -38,7 +38,24 @@ public class InputTextWatcher implements TextWatcher
         if(type.equals(MainActivity.HZFIELD))
         {
             inputString = input.getText().toString();
-            Parameters.FREQUENCY.replaceIndex(0, inputString);
+            if(inputString.contains(":"))
+            {
+
+                if(Parameters.SCANNABLE_FREQUENCY.isIndexValid(0))
+                {
+                    Parameters.SCANNABLE_FREQUENCY.replaceIndex(0, inputString);
+                }
+                else
+                {
+                    Parameters.SCANNABLE_FREQUENCY.append(inputString);
+                }
+            }
+
+            else
+            {
+                Parameters.SCANNABLE_FREQUENCY.resetValues();
+                Parameters.FREQUENCY.replaceIndex(0, inputString);
+            }
         }
 
         else if(type.equals(MainActivity.SAMPLE))
