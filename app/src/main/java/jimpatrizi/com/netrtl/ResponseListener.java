@@ -35,6 +35,15 @@ public class ResponseListener implements Runnable {
                 final Message msg = tcpClient.getCompletedMessage();
                 if (msg.getResponseMsgType() == Message.ResponseType.ERROR) {
                     Log.d(TAG, "ERROR RECEIVED!!!!!: \n" + msg.toString());
+                    parseCmdsInUseResponse(msg.getResponseMsg());
+                    mainActivity.runOnUiThread(new Runnable() {
+                                                   @Override
+                                                   public void run() {
+                           Toast.makeText(mainActivity.getApplicationContext(), msg.getResponseMsg(), Toast.LENGTH_SHORT).show();
+                       }
+                   }
+                );
+                handleErrorMessage(msg);
                 } else if (msg.getResponseMsgType() == Message.ResponseType.UPDATE_AVAILABLE) {
                     Log.d(TAG, "UPDATE AVAILABLE RECEIVED!!!!!: \n" + msg.toString());
                     tcpClient.sendToServer("CMDS_IN_USE");
@@ -60,14 +69,28 @@ public class ResponseListener implements Runnable {
         }
     }
 
+    private void handleErrorMessage(Message msg)
+    {
+        int equalsIndex = msg.getOutboundMsg().indexOf("=");
+        String command = msg.getOutboundMsg().substring(0, equalsIndex);
+        String value = msg.getOutboundMsg().substring(equalsIndex + 1);
+
+        for (Parameters param : Parameters.values())
+        {
+            if (param.getFunction().equals(command)) {
+                param.updateField(mainActivity, "INVALID");
+            }
+        }
+    }
+
     private void parseCmdsInUseResponse(String response)
     {
         // Each instance doesn't include the newline character
         String[] responseLines = response.split("\n");
-        boolean hasEnableOptionParamBeenReset = false;
 
         // Reset all enable option strings
         ((EnableOptionUiMatcher) Parameters.ENABLE_OPTION.getUiElement()).uncheckAll(mainActivity);
+        Parameters.ENABLE_OPTION.resetValues();
 
         for (String line : responseLines)
         {
@@ -86,78 +109,14 @@ public class ResponseListener implements Runnable {
                     if (param.getFunction().equals(command)) {
                         Log.d(TAG, "ASSOCIATED W/ PARAMETER: " + param.getFunction());
 
-                        if (param.equals(Parameters.ENABLE_OPTION) && !hasEnableOptionParamBeenReset)
-                        {
-                            param.resetValues();
-                            hasEnableOptionParamBeenReset = true;
-                        }
-                        else if (!param.equals(Parameters.ENABLE_OPTION))
+                        if (!param.equals(Parameters.ENABLE_OPTION))
                         {
                             param.resetValues();
                         }
 
                         param.append(value);
 
-                        if (param.equals(Parameters.FREQUENCY))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if (param.equals(Parameters.SAMPLE_RATE))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if (param.equals(Parameters.RESAMPLE_RATE))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if (param.equals(Parameters.ENABLE_OPTION))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if (param.equals(Parameters.MODULATION_MODE))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if(param.equals(Parameters.OVERSAMPLING))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if(param.equals(Parameters.VOLUME))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if(param.equals(Parameters.SQUELCH_LEVEL))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-
-                        else if(param.equals(Parameters.TUNER_GAIN))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-                        else if(param.equals(Parameters.ATAN_MATH))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-                        else if(param.equals(Parameters.FIR_SIZE))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-                        else if(param.equals(Parameters.PPM_ERROR))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
-                        else if(param.equals(Parameters.SQUELCH_DELAY))
-                        {
-                            param.updateField(mainActivity, value);
-                        }
+                        param.updateField(mainActivity, value);
                     }
                 }
             }

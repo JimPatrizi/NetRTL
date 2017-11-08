@@ -16,4 +16,9 @@
         android:orderInCategory="100"
         android:title="@string/clear_setting"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/pull"
+        android:orderInCategory="100"
+        android:title="@string/pull_setting"
+        app:showAsAction="never" />
 </menu>

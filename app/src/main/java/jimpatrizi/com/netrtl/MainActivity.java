@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity
     private static final int maxGainInt = 50;
     private static final int maxVolumeInt = 100;
 
-
     /**
      * Private Variables
      */
@@ -143,12 +142,7 @@ public class MainActivity extends AppCompatActivity
      * MainActivity Context
      */
     public Context context;
-
-    /**
-     * Public Object creation
-     */
-    //handles logcat messages for socket debugging, will be used to implement UI callback
-    public ConnectionHandle handler = new ConnectionHandle();
+    private static MainActivity mainActivity;
 
     /**
      * Functions
@@ -171,6 +165,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
+
+        mainActivity = this;
 
         //Reset Parameter Enums at startup
         //Parameters.resetValues();
@@ -211,6 +207,8 @@ public class MainActivity extends AppCompatActivity
         switchInits();
 
         stopButtonInit();
+
+
 
 //        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollview);
 //        scrollView.setOnScrollChangeListener(new ScrollChangeListener(getApplicationContext()));
@@ -270,6 +268,7 @@ public class MainActivity extends AppCompatActivity
 
         // Associate this with the Frequency parameter
         Parameters.FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
+        Parameters.SCANNABLE_FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
         Parameters.SAMPLE_RATE.setUiMembers(samplingRate, samplingRate.getClass());
         Parameters.RESAMPLE_RATE.setUiMembers(resamplingRate, resamplingRate.getClass());
         Parameters.PPM_ERROR.setUiMembers(ppmErrorText, ppmErrorText.getClass());
@@ -319,6 +318,7 @@ public class MainActivity extends AppCompatActivity
             responseListener = new ResponseListener(tcpClient, this);
             responseListenerThread = new Thread(responseListener);
             responseListenerThread.start();
+            tcpClient.sendToServer("CMDS_IN_USE");
             //TODO Kill old thread
         } catch (IOException exception) {
             Log.e(TAG, "UNABLE TO CREATE SOCKET TO CLIENT");
@@ -592,6 +592,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.clear)
         {
             tcpClient.sendToServer("CLEAR");
+        } else if (id == R.id.pull)
+        {
+            tcpClient.sendToServer("CMDS_IN_USE");
         }
 
         return super.onOptionsItemSelected(item);
@@ -690,4 +693,22 @@ public class MainActivity extends AppCompatActivity
     public  void setFrequency(String frequency) {
         MainActivity.frequency = frequency;
     }
+
+    public static Context getAppContext()
+    {
+        return mainActivity.getApplicationContext();
+    }
+
+    public static void printToast(final String msg)
+    {
+        mainActivity.runOnUiThread(new Runnable() {
+                                       @Override
+                                       public void run() {
+            Toast.makeText(getAppContext(), msg, Toast.LENGTH_LONG).show();
+                                       }
+                                   }
+        );
+
+    }
+
 }

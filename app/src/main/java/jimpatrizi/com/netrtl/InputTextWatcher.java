@@ -38,23 +38,21 @@ public class InputTextWatcher implements TextWatcher
         if(type.equals(MainActivity.HZFIELD))
         {
             inputString = input.getText().toString();
+
+            // Entering a scannable freq in the form MIN:MAX:INCREMENT
             if(inputString.contains(":"))
             {
-
-                if(Parameters.SCANNABLE_FREQUENCY.isIndexValid(0))
-                {
-                    Parameters.SCANNABLE_FREQUENCY.replaceIndex(0, inputString);
-                }
-                else
-                {
-                    Parameters.SCANNABLE_FREQUENCY.append(inputString);
-                }
+                Parameters.SCANNABLE_FREQUENCY.resetValues();
+                Parameters.FREQUENCY.resetValues();
+                Parameters.SCANNABLE_FREQUENCY.append(inputString);
             }
 
+            // Standard frequency input
             else
             {
                 Parameters.SCANNABLE_FREQUENCY.resetValues();
-                Parameters.FREQUENCY.replaceIndex(0, inputString);
+                Parameters.FREQUENCY.resetValues();
+                Parameters.FREQUENCY.append(inputString);
             }
         }
 
@@ -80,7 +78,6 @@ public class InputTextWatcher implements TextWatcher
             inputString = input.getText().toString();
             Parameters.SQUELCH_DELAY.replaceIndex(0, inputString);
         }
-
 
     }
 }

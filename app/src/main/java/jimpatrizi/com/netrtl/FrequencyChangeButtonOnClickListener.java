@@ -3,8 +3,9 @@ package jimpatrizi.com.netrtl;
 import android.content.Context;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import static jimpatrizi.com.netrtl.Parameters.*;
+import static jimpatrizi.com.netrtl.Parameters.FREQUENCY;
 
 /**
  * Created by jamespatrizi on 9/30/17.
@@ -38,7 +39,13 @@ public class FrequencyChangeButtonOnClickListener implements View.OnClickListene
     public void onClick(View v) {
         if (FREQUENCY.isIndexValid(0))
         {
-            FREQUENCY.replaceIndex(0, "" + (Integer.parseInt(FREQUENCY.getByIndex(0)) + changeValue));
+            try {
+                FREQUENCY.replaceIndex(0, "" + (Integer.parseInt(FREQUENCY.getByIndex(0)) + changeValue));
+            }
+            catch (NumberFormatException exception)
+            {
+                Toast.makeText(context, "Enter a frequency first: " + exception, Toast.LENGTH_SHORT).show();
+            }
         }
         else
         {
