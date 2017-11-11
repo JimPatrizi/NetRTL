@@ -41,7 +41,7 @@ public class SettingsPrefActivity extends AppCompatPreferenceActivity
             addPreferencesFromResource(R.xml.pref_main);
 
 
-            // ip EditText change listener
+            // ip EditText change listener, binds preference to the appopriate key defined in
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_ip_name)));
 
             // port edittext preference change listener
@@ -65,15 +65,21 @@ public class SettingsPrefActivity extends AppCompatPreferenceActivity
         private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                // for each respective preference, get the new value that is inputted
                 String stringValue = newValue.toString();
-                Parameters.PPM_ERROR.setUiMembers(preference, preference.getClass());
+                //if the preference is an edittext preference
                  if (preference instanceof EditTextPreference) {
+                     //if this edittextpreference is the ip address
                      if (preference.getKey().equals("key_ip_name")) {
                          // update the changed ip name to summary filed
+                         //set the ip address preference summary to the new value inputted
                          preference.setSummary(stringValue);
+                         //put the new ip address in the shared preferences and apply the change
                          editor.putString("key_ip_name", stringValue);
                          editor.apply();
+                         //if the preference is the port number
                      } else if (preference.getKey().equals("key_port_name")) {
+                         //set the preference summary to the new value and apply the new new value to the preference
                          preference.setSummary(stringValue);
                          editor.putInt("key_port_name", Integer.parseInt(stringValue));
                          editor.apply();
