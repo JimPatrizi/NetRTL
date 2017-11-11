@@ -382,14 +382,33 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    //Not used
-    public static String getModulationMode() {
-        return modulationMode;
+    /**
+     * Returns the current value in spinner, used in
+     * @param modulationModeSpinner spinner object to get param from
+     * @return - returns the current value selected in spinner
+     */
+    public String getModulationModeSpinner(Spinner modulationModeSpinner) {
+        return modulationModeSpinner.getSelectedItem().toString();
     }
 
-    //Not used
-    public void setModulationMode(String modulationMode) {
-        MainActivity.modulationMode = modulationMode;
+    /**
+     * Sets this spinner to the selection if its contained in that spinner
+     * @param modulationModeSpinner spinner object to get param from
+     * @param newMode the new mode to set to
+     */
+    public void setModulationModeSpinner(Spinner modulationModeSpinner, String newMode)
+    {
+        int index = 0;
+        for(int i = 0; i < modulationModeSpinner.getCount(); i++)
+        {
+            if(modulationModeSpinner.getItemAtPosition(i).toString().equals(newMode))
+            {
+                modulationModeSpinner.setSelection(i);
+                break;
+            }
+            else
+                Log.e(TAG, "Invalid mode");
+        }
     }
 
 
@@ -485,6 +504,40 @@ public class MainActivity extends AppCompatActivity
         switchInits();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            // launch settings activity
+            startActivity(new Intent(MainActivity.this, SettingsPrefActivity.class));
+            return true;
+        } else if (id == R.id.reconnect) {
+            //connect/reconnect to server and reinit client
+            threadClientInit();
+        } else if (id == R.id.clear)
+        {
+            tcpClient.sendToServer("CLEAR");
+        } else if (id == R.id.pull)
+        {
+            tcpClient.sendToServer("CMDS_IN_USE");
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
     /**
      * Init Default Parameters in Parameter enum class that need initial values
      * SeekBar types init in their respective init methods (squelch, gain, volume)
@@ -544,12 +597,20 @@ public class MainActivity extends AppCompatActivity
      * Connect to socket with user given IP and socket
      */
     public void threadClientInit() {
-        //Obtained the previously set IP + Port Preferences
 
+        /**
+         * Obtain the shared preferences object and get the respective keys for user set ip addr and port
+         */
         sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
+        //inits to 0.0.0 if field is empty
         ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
+        //inits port to 2832 if field is empty
         port_number = sharedPrefs.getInt("key_port_name", 2832);
 
+        /**
+         * If Thread is already running and still running, on call to threadClientInit, terminates
+         * original thread first before init a new thread, or resource leaks can happen
+         */
         if (tcpClientThread != null && tcpClientThread.isAlive()) {
             try {
                 tcpClient.terminate();
@@ -559,20 +620,43 @@ public class MainActivity extends AppCompatActivity
                 Log.e(TAG, "UNABLE TO TERMINATE TCP CLIENT");
             }
         }
+
+        /**
+         * If response listener thread is running on call to threadClientInit, terminates
+         * original thread, by stopping infinite while loop
+         */
+        if (responseListenerThread != null && responseListenerThread.isAlive()) {
+            try {
+                //stops listening
+                responseListener.terminate();
+            } catch (Exception exception) {
+                Log.e(TAG, "UNABLE TO TERMINATE ResponseListener");
+            }
+        }
+
+        /**
+         * Init the tcpClient and thread and response listener, response listener thread
+         */
         try {
+            //Init tcp client
             tcpClient = new TcpClient(ip_address, port_number);
+            //Init tcpClient thread
             tcpClientThread = new Thread(tcpClient, TcpClient.getDefaultThreadName());
+            //Start tcpClient in new thread, starts in run() because implements runnable
             tcpClientThread.start();
+            //init response listener
             responseListener = new ResponseListener(tcpClient, this);
+            //init response listener's new thread
             responseListenerThread = new Thread(responseListener);
+            //start in response listener's run method, implements runnable
             responseListenerThread.start();
+            //This sends CMDS_IN_USE to server, so that it pulls currently configured daemon settings from server to UI/Parameters
             tcpClient.sendToServer("CMDS_IN_USE");
-            //TODO Kill old thread
+            //TODO Kill old thread, did i take care of it with responselistener terminate?
         } catch (IOException exception) {
             Log.e(TAG, "UNABLE TO CREATE SOCKET TO CLIENT");
             Toast.makeText(context, "Unable to connect to: " + ip_address, Toast.LENGTH_SHORT).show();
         }
-        //end of open socket routine
     }
 
     /**
@@ -582,12 +666,18 @@ public class MainActivity extends AppCompatActivity
         //Init Volume Parameter Default
         TUNER_GAIN.append(gain);
 
-        gainSeekBar = (SeekBar) findViewById(R.id.gain_seek); // initiate the Seekbar
-        gainTextView = (TextView) findViewById(R.id.gain_text);
+        //Init SeekBar and text view with xml reference
+        gainSeekBar = (SeekBar) findViewById(R.id.gain_seek);
+        gainTextView = (TextView) findViewById(R.id.gain_text);//not currently used
+
+        //Associate TUNER GAIN with gain seekbar
         Parameters.TUNER_GAIN.setUiMembers(gainSeekBar, gainSeekBar.getClass());
 
-        gainSeekBar.setMax(maxGainInt); // 0 maximum value for the Seek bar
+        //set gainseek bar max
+        gainSeekBar.setMax(maxGainInt);
+        //set the default progress of the seekbar
         gainSeekBar.setProgress(Integer.parseInt(gain));
+        //set SeekBarOnChangeListener
         gainSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, gainTextView, "gain"));
     }
 
@@ -599,12 +689,17 @@ public class MainActivity extends AppCompatActivity
         //Init Volume Parameter Default
         SQUELCH_LEVEL.append(squelch);
 
-        squelchSeekBar = (SeekBar) findViewById(R.id.squelch_seek); // initiate the Seekbar
-        squelchTextView = (TextView) findViewById(R.id.squelch_text);
+        //Init Squelch Bar from xml reference
+        squelchSeekBar = (SeekBar) findViewById(R.id.squelch_seek);
+        squelchTextView = (TextView) findViewById(R.id.squelch_text);//not currently used
+
+        //Associate Squelch Parameter with this UI Member
         Parameters.SQUELCH_LEVEL.setUiMembers(squelchSeekBar, squelchSeekBar.getClass());
 
+        //Set SeekBar Max and current Value
         squelchSeekBar.setMax(maxSquelchInt);
         squelchSeekBar.setProgress(Integer.parseInt(squelch));
+        //set on change listener
         squelchSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, squelchTextView, "squelch"));
     }
 
@@ -613,15 +708,18 @@ public class MainActivity extends AppCompatActivity
      */
     public void volumeSeekBarInit() {
         //Init Volume Parameter Default
-        //BEN, weird stuff happens if i dont reset at startup
         VOLUME.append(volume);
 
-        volumeSeekBar = (SeekBar) findViewById(R.id.volume_seek); // initiate the Seekbar
-        volumeTextView = (TextView) findViewById(R.id.volume_text);
+        //init volumeSeekBar with xml reference
+        volumeSeekBar = (SeekBar) findViewById(R.id.volume_seek);
+        volumeTextView = (TextView) findViewById(R.id.volume_text);//not currently used
+
+        //associate ui member with parameter
         Parameters.VOLUME.setUiMembers(volumeSeekBar, volumeSeekBar.getClass());
 
-        volumeSeekBar.setMax(maxVolumeInt); // 100 maximum value for the Seek bar
-        //volumeSeekBar.setProgress(defaultVolumeInt);
+        // 100 maximum value for the Seek bar, default volume is 0
+        volumeSeekBar.setMax(maxVolumeInt);
+        //set on change listener
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBarChangeOnClickListener(context, volumeTextView, "volume"));
     }
 
@@ -629,15 +727,24 @@ public class MainActivity extends AppCompatActivity
      * This executeButtonInit method sets the click listener on the execute button
      */
     public void executeButtonInit() {
+        //associate button with xml reference
         Button executeButton = (Button) findViewById(R.id.execute);
+        //init toast obj to be used in this application context, just needed once
         Toast toast = new Toast(getApplicationContext());
+        //sets toast position on screen
         toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        //sets on click listener for execute button
         executeButton.setOnClickListener(new ExecuteButtonOnClickListener(getApplicationContext()));
     }
 
+    /**
+     * Inits the stop button and click listener
+     */
     public void stopButtonInit()
     {
+        //associate button with xml reference
         Button stopButton = (Button) findViewById(R.id.stop);
+        //if clicked, send STOP to the server
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -652,32 +759,38 @@ public class MainActivity extends AppCompatActivity
      *
      */
     public void spinnerInit() {
-        //init spinner from id
+        //init spinner from id, xml references
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         oversampleModeSpinner = (Spinner) findViewById(R.id.oversamp_spinner);
         atanMathSpinner = (Spinner) findViewById(R.id.atan_spinner);
         firSizeSpinner = (Spinner) findViewById(R.id.fir_spinner);
 
+        //associate ui members with parameters
         Parameters.MODULATION_MODE.setUiMembers(modulationModeSpinner, modulationModeSpinner.getClass());
         Parameters.OVERSAMPLING.setUiMembers(oversampleModeSpinner, oversampleModeSpinner.getClass());
         Parameters.ATAN_MATH.setUiMembers(atanMathSpinner, atanMathSpinner.getClass());
         Parameters.FIR_SIZE.setUiMembers(firSizeSpinner, firSizeSpinner.getClass());
 
-        //spinner strings to populate spinner object
+        //modulation mode spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
                 "fm", "am", "usb", "lsb", "wbfm", "raw",
         };
+
+        //oversampling mode spinner strings
         String[] overSampling = new String[]{
                 "-1", "1", "2", "3", "4"
         };
 
+        //ATAN Math spinner options
         String[] atanMath = new String[]{
                 "std", "lut", "fast"
         };
 
+        //FIR Size Options
         String[] fir = new String[]{
                 "0", "9", "-1"
         };
+
         //set array adapter to set the strings inside spinner obect
         ArrayAdapter<String> adapterMod = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, modeSpinnerStrings);
@@ -687,38 +800,65 @@ public class MainActivity extends AppCompatActivity
                 android.R.layout.simple_spinner_item, atanMath);
         ArrayAdapter<String> adapterFIR = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, fir);
+
+        //associate the adapeters and spinners together
         modulationModeSpinner.setAdapter(adapterMod);
         oversampleModeSpinner.setAdapter(adapterSample);
         oversampleModeSpinner.setSelection(1);
         atanMathSpinner.setAdapter(adapterATAN);
         firSizeSpinner.setAdapter(adapterFIR);
-        //formats spinner to be nice clickable size
+
+        //formats spinner to be nice clickable size for content, based off content wrapping
         adapterMod.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterSample.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterATAN.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterFIR.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+
         modulationModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Once modulation mode spinner is set, change the Parameter to that value
+             * @param adapterView -  not used
+             * @param view -  not used
+             * @param i - not used
+             * @param l - not used
+             */
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String newModulationMode = getModulationModeSpinner(modulationModeSpinner);
                 MODULATION_MODE.replaceIndex(0, newModulationMode);
             }
 
+            /**
+             * Does nothing
+             * @param adapterView - not used
+             */
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                //do Nothing?
+                //do Nothing
             }
         });
 
+
         oversampleModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+            /**
+             * Once oversampling mode spinner is set, change the Parameter to that value
+             * @param parent - not used
+             * @param view - not used
+             * @param position - not used
+             * @param id - not used
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String newsamplingMode = getModulationModeSpinner(oversampleModeSpinner);
                 OVERSAMPLING.replaceIndex(0, newsamplingMode);
             }
 
+            /**
+             * Not used
+             * @param parent - not used
+             */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -726,12 +866,23 @@ public class MainActivity extends AppCompatActivity
         });
 
         atanMathSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Once atan math  spinner is set, change the Parameter to that value
+             * @param adapterView -  not used
+             * @param view -  not used
+             * @param i -  not used
+             * @param l -  not used
+             */
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String newsamplingMode = getModulationModeSpinner(atanMathSpinner);
                 ATAN_MATH.replaceIndex(0, newsamplingMode);
             }
 
+            /**
+             * Not used
+             * @param adapterView -  not used
+             */
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
@@ -739,6 +890,13 @@ public class MainActivity extends AppCompatActivity
         });
 
         firSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Once fir size  spinner is set, change the Parameter to that value
+             * @param adapterView - not used
+             * @param view - not used
+             * @param i - not used
+             * @param l - not used
+             */
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String newsamplingMode = getModulationModeSpinner(firSizeSpinner);
@@ -750,25 +908,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-    }
-
-    public String getModulationModeSpinner(Spinner modulationModeSpinner) {
-      return modulationModeSpinner.getSelectedItem().toString();
-    }
-
-    public void setModulationModeSpinner(Spinner modulationModeSpinner, String newMode)
-    {
-        int index = 0;
-        for(int i = 0; i < modulationModeSpinner.getCount(); i++)
-        {
-            if(modulationModeSpinner.getItemAtPosition(i).toString().equals(newMode))
-            {
-                modulationModeSpinner.setSelection(i);
-                break;
-            }
-            else
-                Log.e(TAG, "Invalid mode");
-        }
     }
 
     /**
@@ -803,47 +942,19 @@ public class MainActivity extends AppCompatActivity
         decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext(), hzInput));
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            // launch settings activity
-            startActivity(new Intent(MainActivity.this, SettingsPrefActivity.class));
-            return true;
-        } else if (id == R.id.reconnect) {
-            //connect/reconnect to server and reinit client
-            threadClientInit();
-        } else if (id == R.id.clear)
-        {
-            tcpClient.sendToServer("CLEAR");
-        } else if (id == R.id.pull)
-        {
-            tcpClient.sendToServer("CMDS_IN_USE");
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
+    /**
+     * Init Switch Enable Optoons
+     */
     public void switchInits()
     {
+        //associate the enableoption UI mater class with all enable options
         ENABLE_OPTION.setUiMembers(enableOptionUiMatcher, enableOptionUiMatcher.getClass());
 
-        //Enable Option switches
+        /**
+         * Enable Option switches, enableOptionUIMatcher adds to hash map the key and switch to watch
+         * for server callbacks. Adds onchecked listener to each to add and remove that enable option
+         * from the PARAMETER List
+         */
         directSwitch = (Switch) findViewById(R.id.direct);
         directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DIRECT));
         enableOptionUiMatcher.add(DIRECT, directSwitch);
@@ -864,6 +975,4 @@ public class MainActivity extends AppCompatActivity
         offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(OFFSET));
         enableOptionUiMatcher.add(OFFSET, offsetSwitch);
     }
-
-
 }

@@ -15,6 +15,7 @@ import com.bensherman.rtlsdrdjava.tcpcli.TcpClient;
 public class ResponseListener implements Runnable {
     private TcpClient tcpClient;
     private Activity mainActivity;
+    private boolean running;
 
     /**
      * For Logcat debugging
@@ -25,12 +26,13 @@ public class ResponseListener implements Runnable {
     public  ResponseListener(final TcpClient tcpClient, final Activity mainActivity) {
         this.tcpClient = tcpClient;
         this.mainActivity = mainActivity;
+        this.running = true;
     }
 
     @Override
     public void run() {
 
-        while(true) {
+        while(running) {
             try {
                 final Message msg = tcpClient.getCompletedMessage();
                 if (msg.getResponseMsgType() == Message.ResponseType.ERROR) {
@@ -82,6 +84,11 @@ public class ResponseListener implements Runnable {
             }
         }
     }
+
+    public void terminate() {
+        running = false;
+    }
+
 
     private void parseCmdsInUseResponse(String response)
     {

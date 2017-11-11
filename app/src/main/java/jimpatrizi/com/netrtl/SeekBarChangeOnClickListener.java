@@ -11,20 +11,43 @@ import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
 /**
  * Created by jamespatrizi on 10/21/17.
+ * Seek Bar Change Listener
  */
 
 public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeListener
 {
+    /**
+     * Application Context
+     */
     private Context context;
-    private int progressChangedValue = 0;
-    private String gainChange = "0";
-    private  String type;
-    private TextView textView;
-    private  int AGC = -100;
 
     /**
-     * Constructor that gets the new value
-     * @param context
+     *  Current Progress Changed Value
+     */
+    private int progressChangedValue = 0;
+
+    /**
+     * Type of SeekBar
+     */
+    private  String type;
+
+    /**
+     * The textView
+     */
+    private TextView textView;
+
+    /**
+     * Automatic Gain Control is defined as -100 according to rtl-sdr, rtl_fm
+     */
+    private int AGC = -100;
+
+
+    /**
+     * Takes seekbar context with associated text view object(to be implemented later, textview dynamic
+     * updates), and the type of seek bar, to then change the respective PARAMETER with associated UI element
+     * @param context - application context
+     * @param textView - currently, not used
+     * @param type - Parameter Type, gain, squelch, volume
      */
     public SeekBarChangeOnClickListener(Context context, TextView textView, String type){
         this.context = context;
@@ -32,42 +55,32 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
         this.textView = textView;
     }
 
-
     /**
-     * TODO Ask Ben about Tuner Gain defaults
-     * For when i forget later and I need to fix this gain.
-     * How many values there are between two integers? -> 13
-
-     How many integers are needed? 8 - 2 = 6
-
-     How many values in overall? -> 13 * 6 = 78 (max value of Seekbar)
-
-     How to show the value?
-
-     (progress / 13) + "." + (progress % 13)
-
-     * @param seekBar
-     * @param progress
-     * @param fromUser
+     * On Progress Changed, get the current progresschanged value
+     * @param seekBar - this seekbar
+     * @param progress - on progress changed, that progress value
+     * @param fromUser - NA
      */
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         progressChangedValue = progress;
-//        if(type.equals("gain"))
-//        {
-//            gainChange = (progress / 13) + "." + (progress % 13);
-//        }
-//        else
-//        {
-//            progressChangedValue = progress;
-//        }
-
     }
 
+    /**
+     * Not used
+     * @param seekBar
+     */
     public void onStartTrackingTouch(SeekBar seekBar) {
-        // TODO Auto-generated method stub, do i need this?
     }
 
+    /**
+     * Once the user stops tracking the seekbar, replace the parameter's value with the current
+     * progressedChangedValue. Shows Toast popup of this value.
+     * @param seekBar - this seekbar
+     */
     public void onStopTrackingTouch(SeekBar seekBar) {
+        /**
+         * Uses type to determine which seekbar we are using to change the correct Parameter
+         */
         if(type.equalsIgnoreCase("volume"))
         {
             if (VOLUME.isIndexValid(0)) {
