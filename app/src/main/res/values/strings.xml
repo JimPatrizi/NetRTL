@@ -13,5 +13,6 @@
     <string name="connect_setting">Connect</string>
     <string name="clear_setting">Clear</string>
     <string name="pull_setting">rtlsdrd Pull</string>
+    <string name="default_setting">Defaults</string>
 
 </resources>

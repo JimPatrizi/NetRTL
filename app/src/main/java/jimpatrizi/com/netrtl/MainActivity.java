@@ -3,9 +3,7 @@ package jimpatrizi.com.netrtl;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,222 +41,475 @@ import static jimpatrizi.com.netrtl.Parameters.VOLUME;
 
 /**
  * MainActivity of the NetRTL Android Application.
+ * Communicates with rtlsdrd daemon (https://github.com/bennettmsherman/rtlsdrd)
+ * to build parameters that are sent to rtl sdr via rtl_fm from the rtl-sdr OS project
  * @author Jim Patrizi
  * @version 1.0
- * @since 2017-10-02
+ * @since 2017-11-11-2017
  */
 public class MainActivity extends AppCompatActivity
 {
 
+     /********************************************************************************
+      *     Default Parameter Inits
+      *     Defaults based on rtlsdrd
+      *     Parameters based on what is sent to rtl_fm from rtl-sdr
+     *********************************************************************************/
+
     /**
-     * Default Parameter Inits
+     *  Modulation Mode Default - fm, am, usb, lsb, raw, wbfm
      */
-
     private static String modulationMode = "fm";
+
+    /**
+     *  Sample Rate Default
+     *  static const uint32_t MIN_VALID = 0;
+     *  static const uint32_t MAX_VALID = 3.2 MS/s
+     *  static const uint32_t DEFAULT_VALUE = 24 kS/s
+     */
     private static String sampleRate = "2400000";
+
+    /**
+     * Resample Rate Default
+     * static const uint32_t MIN_VALID = 0;
+     * static const uint32_t MAX_VALID = 3.2 MS/s
+     * static const uint32_t DEFAULT_VALUE = 24 kS/s
+     */
     private static String resampleRate = "48000";
-    private static String overSampling = "-1";
+
+    /**
+     * Oversampling Default
+     * 1  Default 2, 3 , 4
+     */
+    private static String overSampling = "1";
+
+    /**
+     * System Volume Default - 0 - 100%
+     */
     private static String volume = "0";
-    private static String squelch = "0";
-    private static String gain = "-100"; //ACG enables as per rtl_fm?
-    private static String frequency = "0";
 
-    private static String sqelchDelay = "10";
-    private static String ppmError = "0";
-    private static String deviceIndex = "0";
-    private static String atanMath = "std"; //TODO ADD SCANNABLE FREQUENCY std/fast/lut are atan params and put on main screen
-    private static String firSize = "0"; //FIR_SIZE
-
-    private static final int maxSquelchInt = 500; //TODO is this the max squelch?
-    private static final int maxGainInt = 50;
+    /**
+     * Adjust this parameter to adjust the max volume allowed on the volume seek bar
+     */
     private static final int maxVolumeInt = 100;
 
     /**
-     * Private Variables
+     * Squelch Level
+     * Min 0, Max UINT32 MAX
      */
+    private static String squelch = "0";
 
+    /**
+     * Adjust this parameter to change the max squelch allowed on the squelch seek bar
+     */
+    private static final int maxSquelchInt = 500; //TODO is this the max squelch?
+
+    /**
+     *    Tuner Gain
+     *
+     *    static const int32_t MIN_VALID = -100;
+     *    static const int32_t MAX_VALID = INT32_MAX;
+     *    static const int32_t DEFAULT_VALUE = -100;
+     */
+    private static String gain = "-100";
+
+    /**
+     * Adjust this parameter to change the max gain allowed on gain seek bar
+     */
+    private static final int maxGainInt = 50;
+
+    /**
+     *  Input Frequency
+     *
+     *  static const uint32_t MIN_VALID = 0;
+     *  static const uint32_t MAX_VALID = 2000000000, 2GHz
+     *  static const uint32_t DEFAULT_VALUE = 91100000, 91.1Mhz
+     */
+    private static String frequency = "0";
+
+    /**
+     *   Squelch Delay
+     *
+     *   static const int32_t MIN_VALID = INT32_MIN;
+     *   static const int32_t MAX_VALID = INT32_MAX;
+     *   static const int32_t DEFAULT_VALUE = 10;
+     */
+    private static String squelchDelay = "10";
+
+    /**
+     *  PPM Error
+     *
+     *  static const uint32_t MIN_VALID = 0;
+     *  static const uint32_t MAX_VALID = 100000;
+     *  static const uint32_t DEFAULT_VALUE = 0;
+     */
+    private static String ppmError = "0";
+
+    /**
+     *  ATAN Math
+     *
+     * const std::vector<std::string> AtanMath::VALID_VALUES {"std", "fast", "lut"};
+     * const std::string AtanMath::DEFAULT_VALUE = "std";
+     */
+    private static String atanMath = "std";
+
+    /**
+     * FIR Size
+     *
+     * const std::vector<std::string> FirSize::VALID_VALUES {"-1", "0", "9"};
+     * const std::string FirSize::DEFAULT_VALUE = "-1";
+     */
+    private static String firSize = "0"; //FIR_SIZE
+
+
+
+    /********************************************************************************
+     *     Private Variables
+     *********************************************************************************/
+
+    /**
+     * For SwitchOnCheckedListener, to know what parameter to toggle when switch is pressed
+     */
     private final String DIRECT = "direct";
     private final String EDGE = "edge";
     private final String DC = "dc";
     private final String DEEMP = "deemp";
     private final String OFFSET = "offset";
+
+    /**
+     * For InputTextWatcher, used for all Edit Text fields for equals() to use one class for all fields
+     */
     static final String HZFIELD = "hz";
     static final String SAMPLE = "sample";
     static final String RESAMPLE = "resample";
     static final String PPM = "ppm";
     static final String DELAY = "delay";
 
-
-
-
     /**
-     * Public Variables
+     * Handles matching ENABLE OPTION switch matching between key and UI object
      */
-    SeekBar volumeSeekBar;
-    SeekBar squelchSeekBar;
-    SeekBar gainSeekBar;
-    Spinner modulationModeSpinner;
-    Spinner oversampleModeSpinner;
-    Spinner firModeSpinner;
-    Spinner atanMathSpinner;
-    EditText hzInput;
-    EditText samplingRate;
-    EditText resamplingRate;
-    EditText ppmErrorText;
-    EditText squelchDelayText;
-    private static TcpClient tcpClient;
-    private static Thread tcpClientThread;
-    private ResponseListener responseListener;
-    private Thread responseListenerThread;
-    Switch directSwitch;
-    Switch edgeSwitch;
-    Switch dcSwitch;
-    Switch deempSwitch;
-    Switch offsetSwitch;
     private final EnableOptionUiMatcher enableOptionUiMatcher = new EnableOptionUiMatcher();
 
 
+    /********************************************************************************
+     *    Package Private Variables
+     *********************************************************************************/
+
     /**
-     * For Logcat debugging
+     * Volume SeekBar
+     */
+    SeekBar volumeSeekBar;
+
+    /**
+     * Squelch SeekBar
+     */
+    SeekBar squelchSeekBar;
+
+    /**
+     * Tuner Gain SeekBar
+     */
+    SeekBar gainSeekBar;
+
+    /**
+     * Modulation Mode Spinner
+     */
+    Spinner modulationModeSpinner;
+
+    /**
+     * Oversampling Mode Spinner
+     */
+    Spinner oversampleModeSpinner;
+
+    /**
+     * Fir Size Spinner
+     */
+    Spinner firSizeSpinner;
+
+    /**
+     * ATAN Math Spinner
+     */
+    Spinner atanMathSpinner;
+
+    /**
+     * Hz Edit TextInput
+     */
+    EditText hzInput;
+
+    /**
+     * Sampling Rate EditText Input
+     */
+    EditText samplingRate;
+
+    /**
+     * Resampling Rate EditText Input
+     */
+    EditText resamplingRate;
+
+    /**
+     * PPM Error EditText Input
+     */
+    EditText ppmErrorText;
+
+    /**
+     * Squelch Delay EditText Input
+     */
+    EditText squelchDelayText;
+
+    /**
+     * Direct Enable Option Switch
+     */
+    Switch directSwitch;
+
+    /**
+     * Edge Enable Option Switch
+     */
+    Switch edgeSwitch;
+
+    /**
+     * dc Enable Option Switch
+     */
+    Switch dcSwitch;
+
+    /**
+     * deemp Enable Option Switch
+     */
+    Switch deempSwitch;
+
+    /**
+     * offset Enable Option Switch
+     */
+    Switch offsetSwitch;
+
+
+    /********************************************************************************
+     *     Logcat variables
+     *********************************************************************************/
+
+    /**
+     * For logcat debugging, used for logcat filter, type in class name to find this classe's msgs
      */
     private String TAG = getClass().getName();
 
-    /**
-     * Text Objects
-     */
+
+    /********************************************************************************
+     *     Text View Objects
+     * TODO These Text Views should have current value of seekbar appended after user releases touch
+     *********************************************************************************/
 
     public TextView volumeTextView;
     public TextView gainTextView;
     public TextView squelchTextView;
 
+    /********************************************************************************
+     *     Network Connection Variables
+     *********************************************************************************/
+
     /**
-     * Networking Connection Parameters
+     * Port Number Setting - Default 2832
      */
     public int port_number;
+
+    /**
+     * IP Address Setting - Default if none inputted, 0.0.0
+     */
     public String ip_address;
+
+    /**
+     * Port number and ip addr are stored as SharedPreferences, public for access anywhere
+     */
     public SharedPreferences sharedPrefs;
 
+
     /**
-     * MainActivity Context
+     * TcpClient
+     */
+    private static TcpClient tcpClient;
+
+    /**
+     * TcpClient Thread
+     */
+    private static Thread tcpClientThread;
+
+    /**
+     * Listens for server callbacks in new thread
+     */
+    private ResponseListener responseListener;
+
+    /**
+     * New Thread that responseListener is run on
+     */
+    private Thread responseListenerThread;
+
+
+
+    /********************************************************************************
+     *     Main Activity and public context
+     *********************************************************************************/
+
+    /**
+     * Context, usually needed for Toast msgs
      */
     public Context context;
-    private static MainActivity mainActivity;
+
+
 
     /**
-     * Functions
+     * Main Activity Variable
      */
+    private static MainActivity mainActivity;
 
+
+
+    /********************************************************************************
+     *     Getters and Setters
+     *********************************************************************************/
+
+    /**
+     * TcpClient Getter
+     * @return - Returns TcpClient object
+     */
     public static TcpClient getTcpClient() {
         return tcpClient;
     }
 
     /**
-     * OnCreate method, app starts here at launch to initialize all fields
+     * Returns Application Context
+     * @return - MainActivity Application Context
+     */
+    public static Context getAppContext()
+    {
+        return mainActivity.getApplicationContext();
+    }
+
+
+    //Not used
+    public static String getModulationMode() {
+        return modulationMode;
+    }
+
+    //Not used
+    public void setModulationMode(String modulationMode) {
+        MainActivity.modulationMode = modulationMode;
+    }
+
+
+    /********************************************************************************
+     *     Functions
+     *********************************************************************************/
+
+    /**
+     * Prints toast msg to application context on the UI thread
+     * @param msg - msg to be toasted
+     */
+    public static void printToast(final String msg)
+    {
+        mainActivity.runOnUiThread(new Runnable() {
+                                       @Override
+                                       public void run() {
+                                           Toast.makeText(getAppContext(), msg, Toast.LENGTH_LONG).show();
+                                       }
+                                   }
+        );
+
+    }
+
+    /**
+     * Tells us if the tcpClient is connected
+     * @return - True if TcpClient and tcpClientThread are not null nd the client thread is still alive
+     */
+    public static boolean isConnected()
+    {
+        return getTcpClient() != null && tcpClientThread != null && tcpClientThread.isAlive();
+    }
+
+
+
+    /********************************************************************************
+     *     UI Methods
+     *********************************************************************************/
+
+
+    /**
+     * OnCreate method
+     * App starts here at launch to initialize all fields
      *
      * @param savedInstanceState - saves previous instance data for when the user comes back to the app
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         //Bring back apps last known state and set activity_main view
         super.onCreate(savedInstanceState);
+        //sets view to the activity_main.xml layout file
         setContentView(R.layout.activity_main);
-        context = getApplicationContext();
 
+        //init context and mainActivity Variables
+        context = getApplicationContext();
         mainActivity = this;
 
-        //Reset Parameter Enums at startup
-        //Parameters.resetValues();
-
-        //included with project creation
+        //Init Toolbar for menu/settings hamburger menu
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer.setDrawerListener(toggle);
-//        toggle.syncState();
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        navigationView.setNavigationItemSelectedListener(this);
-        //end included with project creation
 
-
+        //Init Default Parameters
+        defaultParamInits();
 
         //connect socket
         threadClientInit();
+
         //Init Execute button
         executeButtonInit();
 
-        hzInputInit();
-        //In Modulation Mode Spinner
+        //Init Stop button
+        stopButtonInit();
+
+        //Init EditText inputs
+        editTextInputInit();
+
+        //Init Spinners
         spinnerInit();
+
         //Init Buttons
         buttonInit();
+
         //Volume SeekBar Init
         volumeSeekBarInit();
 
+        //Gain SeekBar Init
         gainSeekBarInit();
 
+        //Squelch SeekBar Init
         squelchSeekBarInit();
 
-        defaultParamInits();
-
+        //Enable Option Switch Init
         switchInits();
-
-        stopButtonInit();
-
-
-
-//        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollview);
-//        scrollView.setOnScrollChangeListener(new ScrollChangeListener(getApplicationContext()));
     }
 
-    public void switchInits()
-    {
-        ENABLE_OPTION.setUiMembers(enableOptionUiMatcher, enableOptionUiMatcher.getClass());
-
-        //Enable Option switches
-        directSwitch = (Switch) findViewById(R.id.direct);
-        directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DIRECT));
-        enableOptionUiMatcher.add(DIRECT, directSwitch);
-
-        edgeSwitch = (Switch) findViewById(R.id.edge);
-        edgeSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(EDGE));
-        enableOptionUiMatcher.add(EDGE, edgeSwitch);
-
-        dcSwitch = (Switch) findViewById(R.id.dc);
-        dcSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DC));
-        enableOptionUiMatcher.add(DC, dcSwitch);
-
-        deempSwitch = (Switch) findViewById(R.id.deemp);
-        deempSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DEEMP));
-        enableOptionUiMatcher.add(DEEMP, deempSwitch);
-
-        offsetSwitch = (Switch) findViewById(R.id.offset);
-        offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(OFFSET));
-        enableOptionUiMatcher.add(OFFSET, offsetSwitch);
-    }
-
+    /**
+     * Init Default Parameters in Parameter enum class that need initial values
+     * SeekBar types init in their respective init methods (squelch, gain, volume)
+     */
     public void defaultParamInits()
     {
-        //Base Default Parameter Inits
         FREQUENCY.append(frequency);
         MODULATION_MODE.append(modulationMode);
         RESAMPLE_RATE.append(resampleRate);
         SAMPLE_RATE.append(sampleRate);
         OVERSAMPLING.append(overSampling);
-        SQUELCH_DELAY.append(sqelchDelay);
+        SQUELCH_DELAY.append(squelchDelay);
         PPM_ERROR.append(ppmError);
         ATAN_MATH.append(atanMath);
         FIR_SIZE.append(firSize);
-
-        //TODO ADD SCANNABLE FREQUENCY
-
-
     }
 
-    public void hzInputInit() {
+    /**
+     * Init EditText Inputs
+     */
+    public void editTextInputInit() {
+
+        /**
+         * Grab all of the references from context_main.xml
+         */
         hzInput = (EditText) findViewById(R.id.hz_input);
         samplingRate = (EditText) findViewById(R.id.sample_rate);
         resamplingRate = (EditText) findViewById(R.id.resample_rate);
@@ -266,7 +517,10 @@ public class MainActivity extends AppCompatActivity
         squelchDelayText = (EditText) findViewById(R.id.squelch_delay);
 
 
-        // Associate this with the Frequency parameter
+
+        /**
+         * Associate this UI Members with their respective Parameter enums
+         */
         Parameters.FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
         Parameters.SCANNABLE_FREQUENCY.setUiMembers(hzInput, hzInput.getClass());
         Parameters.SAMPLE_RATE.setUiMembers(samplingRate, samplingRate.getClass());
@@ -275,21 +529,15 @@ public class MainActivity extends AppCompatActivity
         Parameters.SQUELCH_DELAY.setUiMembers(squelchDelayText, squelchDelayText.getClass());
 
 
+        /**
+         * Add TextWatcher Listeners to the EditText fields
+         * Adjusts Parameters on UI change
+         */
         hzInput.addTextChangedListener(new InputTextWatcher(hzInput, HZFIELD));
         samplingRate.addTextChangedListener(new InputTextWatcher(samplingRate, SAMPLE));
         resamplingRate.addTextChangedListener(new InputTextWatcher(resamplingRate, RESAMPLE));
         ppmErrorText.addTextChangedListener(new InputTextWatcher(ppmErrorText, PPM));
         squelchDelayText.addTextChangedListener(new InputTextWatcher(squelchDelayText, DELAY));
-
-        //TODO use later for scannable frequencies?
-        hzInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //this can be used for scannable frequencies if user hits enter and saves to parameter
-            public void onClick(View view) {
-                String hzString = hzInput.getText().toString();
-                //Toast.makeText(context, hzString + "Hz", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     /**
@@ -408,12 +656,12 @@ public class MainActivity extends AppCompatActivity
         modulationModeSpinner = (Spinner) findViewById(R.id.modeSpinner);
         oversampleModeSpinner = (Spinner) findViewById(R.id.oversamp_spinner);
         atanMathSpinner = (Spinner) findViewById(R.id.atan_spinner);
-        firModeSpinner = (Spinner) findViewById(R.id.fir_spinner);
+        firSizeSpinner = (Spinner) findViewById(R.id.fir_spinner);
 
         Parameters.MODULATION_MODE.setUiMembers(modulationModeSpinner, modulationModeSpinner.getClass());
         Parameters.OVERSAMPLING.setUiMembers(oversampleModeSpinner, oversampleModeSpinner.getClass());
         Parameters.ATAN_MATH.setUiMembers(atanMathSpinner, atanMathSpinner.getClass());
-        Parameters.FIR_SIZE.setUiMembers(firModeSpinner, firModeSpinner.getClass());
+        Parameters.FIR_SIZE.setUiMembers(firSizeSpinner, firSizeSpinner.getClass());
 
         //spinner strings to populate spinner object
         String[] modeSpinnerStrings = new String[]{
@@ -443,7 +691,7 @@ public class MainActivity extends AppCompatActivity
         oversampleModeSpinner.setAdapter(adapterSample);
         oversampleModeSpinner.setSelection(1);
         atanMathSpinner.setAdapter(adapterATAN);
-        firModeSpinner.setAdapter(adapterFIR);
+        firSizeSpinner.setAdapter(adapterFIR);
         //formats spinner to be nice clickable size
         adapterMod.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapterSample.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -490,10 +738,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        firModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        firSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String newsamplingMode = getModulationModeSpinner(firModeSpinner);
+                String newsamplingMode = getModulationModeSpinner(firSizeSpinner);
                 FIR_SIZE.replaceIndex(0, newsamplingMode);
             }
 
@@ -555,17 +803,6 @@ public class MainActivity extends AppCompatActivity
         decrement10MHZ.setOnClickListener(new FrequencyChangeButtonOnClickListener(-10000000, getApplicationContext(), hzInput));
     }
 
-    //included with project creation
-    //included code below came with Navigation Pullout Activity
-    @Override
-    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            super.onBackPressed();
-//        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -599,116 +836,34 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-//    //TODO This is where the Advanced option needs to go, to start an intent that can set advanced settings
-//    @SuppressWarnings("StatementWithEmptyBody")
-//    @Override
-//    public boolean onNavigationItemSelected(MenuItem item) {
-//        // Handle navigation view item clicks here.
-////        int id = item.getItemId();
-////
-////        if (id == R.id.nav_camera) {
-////            // Handle the camera action
-////        } else if (id == R.id.nav_gallery) {
-////
-////        } else if (id == R.id.nav_slideshow) {
-////
-////        } else if (id == R.id.nav_manage) {
-////
-////        } else if (id == R.id.nav_share) {
-////
-////        } else if (id == R.id.nav_send) {
-////
-////        }
-////
-////        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-////        drawer.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
 
-    public static String getModulationMode() {
-        return modulationMode;
-    }
 
-    public void setModulationMode(String modulationMode) {
-        MainActivity.modulationMode = modulationMode;
-    }
 
-    public static boolean isConnected()
+    public void switchInits()
     {
-        return getTcpClient() != null && tcpClientThread != null && tcpClientThread.isAlive();
+        ENABLE_OPTION.setUiMembers(enableOptionUiMatcher, enableOptionUiMatcher.getClass());
+
+        //Enable Option switches
+        directSwitch = (Switch) findViewById(R.id.direct);
+        directSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DIRECT));
+        enableOptionUiMatcher.add(DIRECT, directSwitch);
+
+        edgeSwitch = (Switch) findViewById(R.id.edge);
+        edgeSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(EDGE));
+        enableOptionUiMatcher.add(EDGE, edgeSwitch);
+
+        dcSwitch = (Switch) findViewById(R.id.dc);
+        dcSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DC));
+        enableOptionUiMatcher.add(DC, dcSwitch);
+
+        deempSwitch = (Switch) findViewById(R.id.deemp);
+        deempSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(DEEMP));
+        enableOptionUiMatcher.add(DEEMP, deempSwitch);
+
+        offsetSwitch = (Switch) findViewById(R.id.offset);
+        offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(OFFSET));
+        enableOptionUiMatcher.add(OFFSET, offsetSwitch);
     }
 
-    public static String getOverSampling() {
-        return overSampling;
-    }
-
-    public  void setOverSampling(String overSampling) {
-        MainActivity.overSampling = overSampling;
-    }
-
-    public static String getSampleRate() {
-        return sampleRate;
-    }
-
-    public void setSampleRate(String sampleRate) {
-        MainActivity.sampleRate = sampleRate;
-    }
-
-    public static String getSquelch() {
-        return squelch;
-    }
-
-    public  void setSquelch(String squelch) {
-        MainActivity.squelch = squelch;
-    }
-
-    public static String getResampleRate() {
-        return resampleRate;
-    }
-
-    public void setResampleRate(String resampleRate) {
-        MainActivity.resampleRate = resampleRate;
-    }
-
-    public static String getGain() {
-        return gain;
-    }
-
-    public void setGain(String gain) {
-        MainActivity.gain = gain;
-    }
-
-    public static String getVolume() {
-        return volume;
-    }
-
-    public  void setVolume(String volume) {
-        MainActivity.volume = volume;
-    }
-
-    public static String getFrequency() {
-        return frequency;
-    }
-
-    public  void setFrequency(String frequency) {
-        MainActivity.frequency = frequency;
-    }
-
-    public static Context getAppContext()
-    {
-        return mainActivity.getApplicationContext();
-    }
-
-    public static void printToast(final String msg)
-    {
-        mainActivity.runOnUiThread(new Runnable() {
-                                       @Override
-                                       public void run() {
-            Toast.makeText(getAppContext(), msg, Toast.LENGTH_LONG).show();
-                                       }
-                                   }
-        );
-
-    }
 
 }
