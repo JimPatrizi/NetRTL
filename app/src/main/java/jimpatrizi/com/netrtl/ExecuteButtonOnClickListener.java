@@ -41,12 +41,20 @@ public class ExecuteButtonOnClickListener implements View.OnClickListener {
             //for all parameter values, get their respective daemoncallbackstrings and send thosse individually
             //to the server, server handles \n between each string
             for (Parameters p : Parameters.values()) {
+
+                // Volume is sent to the server when changed
+                if (p.equals(Parameters.VOLUME))
+                {
+                    continue;
+                }
+
                 for (String s : p.getDameonCallableStrings()) {
 
                     MainActivity.getTcpClient().sendToServer(s);
                     Log.d(TAG, s);
                 }
             }
+
             //Once all parameters have been sent, send EXECUTE to kickoff the server with those settings
             MainActivity.getTcpClient().sendToServer("EXECUTE");
         }

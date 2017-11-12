@@ -17,12 +17,12 @@ public class ResponseListener implements Runnable {
     /**
      * tcpClient to listen to
      */
-    private TcpClient tcpClient;
+    private final TcpClient tcpClient;
 
     /**
      * MainActivity Reference
      */
-    private Activity mainActivity;
+    private final Activity mainActivity;
 
     /**
      * Are we supposed to be running this thread?
@@ -32,7 +32,7 @@ public class ResponseListener implements Runnable {
     /**
      * For Logcat debugging
      */
-    private String TAG = getClass().getName();
+    private final String TAG = getClass().getName();
 
 
     /**
@@ -59,16 +59,8 @@ public class ResponseListener implements Runnable {
                 //if error type
                 if (msg.getResponseMsgType() == Message.ResponseType.ERROR) {
                     Log.d(TAG, "ERROR RECEIVED!!!!!: \n" + msg.toString());
-                    //parse the error messages
-                    parseCmdsInUseResponse(msg.getResponseMsg());
-                    //toast the errors
-                    mainActivity.runOnUiThread(new Runnable() {
-                                                   @Override
-                                                   public void run() {
-                           Toast.makeText(mainActivity.getApplicationContext(), msg.getResponseMsg(), Toast.LENGTH_SHORT).show();
-                       }
-                   }
-                );//handle the error msg
+
+                    //handle the error msg
                     handleErrorMessage(msg);
                 }
                 //if the response type is UPDATE_AVAILABLE, another client pushed something to daemon
@@ -113,6 +105,10 @@ public class ResponseListener implements Runnable {
         final String command = msg.getOutboundMsg().substring(0, equalsIndex);
         //the value that was wrong
         final String value = msg.getOutboundMsg().substring(equalsIndex + 1);
+
+        // Alert the user
+        MainActivity.showGotItDialog(command + " ERROR",
+                "Server responded with ERROR: " + msg.getResponseMsg());
 
         //for all parameters values that are equal to the parsed command, set those ui members to "INVALID"
         for (Parameters param : Parameters.values())

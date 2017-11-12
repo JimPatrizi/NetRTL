@@ -28,6 +28,8 @@ public enum Parameters {
     FIR_SIZE("FIR_SIZE"),
     VOLUME("VOLUME");
 
+    public static final String DEFAULT_SPECIFIER = "default";
+
     /**
      * Each enum
      */
