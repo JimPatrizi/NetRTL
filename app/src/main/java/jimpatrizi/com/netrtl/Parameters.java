@@ -6,6 +6,8 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jimpatrizi.com.netrtl.MainActivity.showGotItDialog;
+
 /**
  * Creates enums for all rtlsdrd dameon parameters
  * Created by jamespatrizi on 9/30/17.
@@ -68,6 +70,13 @@ public enum Parameters {
      */
     public synchronized void append(String val)
     {
+        for (String s:values) {
+            if(val.equals(s))
+            {
+                showGotItDialog("Parameter Warning!" , "Attempting to set" + this.FUNCTION + "with: " + val + "more than once", false);
+                return;
+            }
+        }
         values.add(val);
     }
 

@@ -100,7 +100,7 @@ public class ResponseListener implements Runnable {
 
         // Alert the user
         MainActivity.showGotItDialog(command + " ERROR",
-                "Server responded with ERROR: " + msg.getResponseMsg());
+                "Server responded with ERROR: " + msg.getResponseMsg(), false);
 
         //for all parameters values that are equal to the parsed command, set those ui members to "INVALID"
         for (Parameters param : Parameters.values())
@@ -129,7 +129,7 @@ public class ResponseListener implements Runnable {
      * When CMDS_IN_USE is sent upon an update received, parses the read input from server
      * @param response - response from server to parse
      */
-    private void parseCmdsInUseResponse(String response)
+    protected void parseCmdsInUseResponse(String response)
     {
         // Each instance doesn't include the newline character
         //all responses

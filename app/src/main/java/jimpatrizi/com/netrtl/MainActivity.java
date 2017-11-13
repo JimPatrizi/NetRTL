@@ -353,6 +353,10 @@ public class MainActivity extends AppCompatActivity
      */
     public Context context;
 
+    /**
+     * Static Context Reference
+     */
+    private static Context sContext;
 
 
     /**
@@ -466,6 +470,7 @@ public class MainActivity extends AppCompatActivity
 
         //init context and mainActivity Variables
         context = getApplicationContext();
+        sContext = getApplicationContext();
         mainActivity = this;
 
         //Init Toolbar for menu/settings hamburger menu
@@ -512,7 +517,7 @@ public class MainActivity extends AppCompatActivity
      * @param title The title of the dialog box
      * @param message The message to be shown
      */
-    public static void showGotItDialog(final String title, final String message)
+    public static void showGotItDialog(final String title, final String message, final boolean settingsonclick)
     {
         mainActivity.runOnUiThread(new Runnable() {
             @Override
@@ -524,7 +529,10 @@ public class MainActivity extends AppCompatActivity
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                // Do nothing
+                                if(settingsonclick)
+                                {
+                                    goToSettingsActivity();
+                                }
                             }
                         });
 
@@ -533,6 +541,19 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Go to the Settings Activity
+     */
+    public static void goToSettingsActivity() {
+        Intent settings = new Intent(mainActivity, SettingsPrefActivity.class);
+        sContext.startActivity(settings);
+    }
+
+    /**
+     * Inflate hamburger menu
+     * @param menu - menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -540,6 +561,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Has menu items in hamburger do something
+     * @param item - for menu item, do defined action
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -561,6 +587,13 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.pull)
         {
             tcpClient.sendToServer("CMDS_IN_USE");
+        } else if (id == R.id.default_settings)
+        {
+            DefaultBuilder defaultBuilder = new DefaultBuilder();
+            defaultBuilder.setFrequency(91100000);
+            defaultBuilder.setModulationMode("fm");
+            String toDaemon = defaultBuilder.toString();
+            responseListener.parseCmdsInUseResponse(toDaemon);
         }
 
         return super.onOptionsItemSelected(item);
@@ -641,7 +674,7 @@ public class MainActivity extends AppCompatActivity
         {
             showGotItDialog("Connection information", "Visit the Settings page to set a " +
                     "valid IP address or hostname corresponding to the host running rtlsdrd. " +
-                    "Then, select \"Connect\" from the dropdown menu");
+                    "Then, select \"Connect\" from the dropdown menu", true);
             return;
         }
 
@@ -678,7 +711,7 @@ public class MainActivity extends AppCompatActivity
         try {
             // Let the user know of the connection process
             showGotItDialog("Connecting to rtlsdrd",
-                    "Host: " + ipAddress + "\nPort (TCP): " + portNumber);
+                    "Host: " + ipAddress + "\nPort (TCP): " + portNumber, false);
 
             //Init tcp client
             tcpClient = new TcpClient(ipAddress, portNumber);
