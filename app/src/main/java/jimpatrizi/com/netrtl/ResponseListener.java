@@ -77,14 +77,6 @@ public class ResponseListener implements Runnable {
                         Log.d(TAG, "RECEIVED COMMANDS IN USE!!!: \n" + msg.getResponseMsg());
                         //get the response msg for CMDS_IN_USE and parse it
                         parseCmdsInUseResponse(msg.getResponseMsg());
-                        //TODO remove, toasted for debugging purposes
-                        mainActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(mainActivity.getApplicationContext(), msg.getResponseMsg(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        );
                     }
                 }
             } catch (InterruptedException exception) {
