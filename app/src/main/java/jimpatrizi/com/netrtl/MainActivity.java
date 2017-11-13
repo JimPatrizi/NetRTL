@@ -1,9 +1,11 @@
 package jimpatrizi.com.netrtl;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity
     /**
      *  Modulation Mode Default - fm, am, usb, lsb, raw, wbfm
      */
-    private static String modulationMode = "fm";
+    private static final String modulationMode = "fm";
 
     /**
      *  Sample Rate Default
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity
      *  static const uint32_t MAX_VALID = 3.2 MS/s
      *  static const uint32_t DEFAULT_VALUE = 24 kS/s
      */
-    private static String sampleRate = "2400000";
+    private static final String sampleRate = "default";
 
     /**
      * Resample Rate Default
@@ -75,18 +77,18 @@ public class MainActivity extends AppCompatActivity
      * static const uint32_t MAX_VALID = 3.2 MS/s
      * static const uint32_t DEFAULT_VALUE = 24 kS/s
      */
-    private static String resampleRate = "48000";
+    private static final String resampleRate = "default";
 
     /**
      * Oversampling Default
      * 1  Default 2, 3 , 4
      */
-    private static String overSampling = "1";
+    private static final String overSampling = "default";
 
     /**
      * System Volume Default - 0 - 100%
      */
-    private static String volume = "0";
+    private static final String volume = "0";
 
     /**
      * Adjust this parameter to adjust the max volume allowed on the volume seek bar
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity
      * Squelch Level
      * Min 0, Max UINT32 MAX
      */
-    private static String squelch = "0";
+    private static final String squelch = "0";
 
     /**
      * Adjust this parameter to change the max squelch allowed on the squelch seek bar
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity
      *  static const uint32_t MAX_VALID = 2000000000, 2GHz
      *  static const uint32_t DEFAULT_VALUE = 91100000, 91.1Mhz
      */
-    private static String frequency = "0";
+    private static String frequency = "91100000";
 
     /**
      *   Squelch Delay
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity
      *   static const int32_t MAX_VALID = INT32_MAX;
      *   static const int32_t DEFAULT_VALUE = 10;
      */
-    private static String squelchDelay = "10";
+    private static String squelchDelay = "default";
 
     /**
      *  PPM Error
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity
      *  static const uint32_t MAX_VALID = 100000;
      *  static const uint32_t DEFAULT_VALUE = 0;
      */
-    private static String ppmError = "0";
+    private static String ppmError = "default";
 
     /**
      *  ATAN Math
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity
      * const std::vector<std::string> FirSize::VALID_VALUES {"-1", "0", "9"};
      * const std::string FirSize::DEFAULT_VALUE = "-1";
      */
-    private static String firSize = "0"; //FIR_SIZE
+    private static String firSize = "default"; //FIR_SIZE
 
 
 
@@ -307,12 +309,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * Port Number Setting - Default 2832
      */
-    public int port_number;
+    public int portNumber;
 
     /**
      * IP Address Setting - Default if none inputted, 0.0.0
      */
-    public String ip_address;
+    public String ipAddress;
 
     /**
      * Port number and ip addr are stored as SharedPreferences, public for access anywhere
@@ -504,6 +506,33 @@ public class MainActivity extends AppCompatActivity
         switchInits();
     }
 
+    /**
+     * Displays a dialog message with the specified title and message. One button is shown,
+     * with the text "Got it!", which doesn't have an associated action.
+     * @param title The title of the dialog box
+     * @param message The message to be shown
+     */
+    public static void showGotItDialog(final String title, final String message)
+    {
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder gotItDialog = new AlertDialog.Builder(mainActivity).
+                        setMessage(message).setTitle(title).setCancelable(false);
+
+                gotItDialog.setPositiveButton("Got it!",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                            }
+                        });
+
+                gotItDialog.create().show();
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -569,8 +598,6 @@ public class MainActivity extends AppCompatActivity
         ppmErrorText = (EditText) findViewById(R.id.ppm_error);
         squelchDelayText = (EditText) findViewById(R.id.squelch_delay);
 
-
-
         /**
          * Associate this UI Members with their respective Parameter enums
          */
@@ -602,10 +629,21 @@ public class MainActivity extends AppCompatActivity
          * Obtain the shared preferences object and get the respective keys for user set ip addr and port
          */
         sharedPrefs = context.getSharedPreferences("pref_main", Context.MODE_PRIVATE);
-        //inits to 0.0.0 if field is empty
-        ip_address = sharedPrefs.getString("key_ip_name", "0.0.0");
+
+        // Returns null if no value has been set to this shared preferences key
+        ipAddress = sharedPrefs.getString("key_ip_name", null);
+
         //inits port to 2832 if field is empty
-        port_number = sharedPrefs.getInt("key_port_name", 2832);
+        portNumber = sharedPrefs.getInt("key_port_name", 2832);
+
+        // If no value has been set for the IP, don't try to connect.
+        if (ipAddress == null || ipAddress.length() == 0)
+        {
+            showGotItDialog("Connection information", "Visit the Settings page to set a " +
+                    "valid IP address or hostname corresponding to the host running rtlsdrd. " +
+                    "Then, select \"Connect\" from the dropdown menu");
+            return;
+        }
 
         /**
          * If Thread is already running and still running, on call to threadClientInit, terminates
@@ -638,8 +676,12 @@ public class MainActivity extends AppCompatActivity
          * Init the tcpClient and thread and response listener, response listener thread
          */
         try {
+            // Let the user know of the connection process
+            showGotItDialog("Connecting to rtlsdrd",
+                    "Host: " + ipAddress + "\nPort (TCP): " + portNumber);
+
             //Init tcp client
-            tcpClient = new TcpClient(ip_address, port_number);
+            tcpClient = new TcpClient(ipAddress, portNumber);
             //Init tcpClient thread
             tcpClientThread = new Thread(tcpClient, TcpClient.getDefaultThreadName());
             //Start tcpClient in new thread, starts in run() because implements runnable
@@ -655,7 +697,7 @@ public class MainActivity extends AppCompatActivity
             //TODO Kill old thread, did i take care of it with responselistener terminate?
         } catch (IOException exception) {
             Log.e(TAG, "UNABLE TO CREATE SOCKET TO CLIENT");
-            Toast.makeText(context, "Unable to connect to: " + ip_address, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Unable to connect to: " + ipAddress, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -778,7 +820,7 @@ public class MainActivity extends AppCompatActivity
 
         //oversampling mode spinner strings
         String[] overSampling = new String[]{
-                "-1", "1", "2", "3", "4"
+                "default", "1", "2", "3", "4"
         };
 
         //ATAN Math spinner options
@@ -788,10 +830,10 @@ public class MainActivity extends AppCompatActivity
 
         //FIR Size Options
         String[] fir = new String[]{
-                "0", "9", "-1"
+                "default", "0", "9"
         };
 
-        //set array adapter to set the strings inside spinner obect
+        //set array adapter to set the strings inside spinner object
         ArrayAdapter<String> adapterMod = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, modeSpinnerStrings);
         ArrayAdapter<String> adapterSample = new ArrayAdapter<>(this,
@@ -804,7 +846,6 @@ public class MainActivity extends AppCompatActivity
         //associate the adapeters and spinners together
         modulationModeSpinner.setAdapter(adapterMod);
         oversampleModeSpinner.setAdapter(adapterSample);
-        oversampleModeSpinner.setSelection(1);
         atanMathSpinner.setAdapter(adapterATAN);
         firSizeSpinner.setAdapter(adapterFIR);
 

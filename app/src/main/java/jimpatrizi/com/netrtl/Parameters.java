@@ -29,6 +29,11 @@ public enum Parameters {
     VOLUME("VOLUME");
 
     /**
+     * This parameter to a command indicates that the default action is to be used
+     */
+    public static final String DEFAULT_SPECIFIER = "default";
+
+    /**
      * Each enum
      */
     private final String FUNCTION;
@@ -61,7 +66,7 @@ public enum Parameters {
      * Appends the value to that enums list
      * @param val
      */
-    public void append(String val)
+    public synchronized void append(String val)
     {
         values.add(val);
     }
@@ -71,7 +76,7 @@ public enum Parameters {
      * @param uiElement
      * @param uiElementSpecificType
      */
-    public void setUiMembers(Object uiElement, Class uiElementSpecificType)
+    public synchronized void setUiMembers(Object uiElement, Class uiElementSpecificType)
     {
         this.uiElement = uiElement;
         this.uiElementSpecificType = uiElementSpecificType;
@@ -84,7 +89,7 @@ public enum Parameters {
      * @param toLookUp - the string to look for in the spinner
      * @return - returns index of string in spinner if string exists
      */
-    protected int getIndex(Spinner spinner, String toLookUp)
+    protected int getIndex(final Spinner spinner, final String toLookUp)
     {
         int index = 0;
 
@@ -104,19 +109,18 @@ public enum Parameters {
      * @param mainActivity - main activity
      * @param newVal - the new value of the ui thread to be set to.
      */
-    public void updateField(Activity mainActivity, final String newVal)
+    public synchronized void updateField(Activity mainActivity, final String newVal)
     {
         //if EditText
         if (uiElementSpecificType.equals(android.support.v7.widget.AppCompatEditText.class))
         {
             mainActivity.runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                           //setText on Edit Text objects to newval
-                           ((android.widget.EditText) uiElement).setText(newVal);
-                       }
-                   }
-            );
+               @Override
+               public void run() {
+                    //setText on Edit Text objects to newval
+                   ((android.widget.EditText) uiElement).setText(newVal);
+               }
+           });
         }
         //if enableoptionmatcherclass, call the enableswitchbystring method for that enable option
         if (uiElementSpecificType.equals(EnableOptionUiMatcher.class))
@@ -129,24 +133,22 @@ public enum Parameters {
         {
             final int newValInt = Integer.parseInt(newVal);
             mainActivity.runOnUiThread(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               ((android.widget.SeekBar) uiElement).setProgress(newValInt);
-                                           }
-                                       }
-            );
+               @Override
+               public void run() {
+                   ((android.widget.SeekBar) uiElement).setProgress(newValInt);
+               }
+           });
         }
 
         //if Spinner, set the spinner to the index of the new val
         if (uiElementSpecificType.equals(android.support.v7.widget.AppCompatSpinner.class))
         {
             mainActivity.runOnUiThread(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               ((android.widget.Spinner) uiElement).setSelection(getIndex((android.widget.Spinner) uiElement, newVal));
-                                           }
-                                       }
-            );
+               @Override
+               public void run() {
+                   ((android.widget.Spinner) uiElement).setSelection(getIndex((android.widget.Spinner) uiElement, newVal));
+               }
+           });
         }
     }
 
@@ -154,7 +156,7 @@ public enum Parameters {
      * Get uiElement for Parameter
      * @return returns UI element for this parameter
      */
-    public Object getUiElement()
+    public synchronized Object getUiElement()
     {
         return uiElement;
     }
@@ -164,7 +166,7 @@ public enum Parameters {
      * @param val - value to be removed
      * @return - returns true if value is successfully removed
      */
-    public boolean remove(String val)
+    public synchronized boolean remove(String val)
     {
         return values.remove(val);
     }
@@ -172,7 +174,7 @@ public enum Parameters {
     /**
      * Clear all values for this parameter
      */
-    public void resetValues()
+    public synchronized void resetValues()
     {
         values.clear();
     }
@@ -182,7 +184,7 @@ public enum Parameters {
      * @param idx - index to lookup value at
      * @return - returns string value at the idx
      */
-    public String getByIndex(int idx)
+    public synchronized String getByIndex(int idx)
     {
         return values.get(idx);
     }
@@ -192,7 +194,7 @@ public enum Parameters {
      * @param idx - index to check
      * @return - returns boolean of condition idx < values.size()
      */
-    public boolean isIndexValid(int idx)
+    public synchronized boolean isIndexValid(int idx)
     {
         if (idx < 0)
         {
@@ -208,7 +210,7 @@ public enum Parameters {
      * @param val - value to replace in index
      * @return - if index doesn't exist, return false
      */
-    public boolean replaceIndex(int idx, String val)
+    public synchronized boolean replaceIndex(int idx, String val)
     {
         if (!isIndexValid(idx))
         {
@@ -225,7 +227,7 @@ public enum Parameters {
      * Get all values of arraylist
      * @return - array list of values
      */
-    public List<String> getValues()
+    public synchronized List<String> getValues()
     {
         return new ArrayList<>(values);
     }
@@ -234,7 +236,7 @@ public enum Parameters {
      * Makes a new list of daemon formatted strings to send to the server
      * @return - list of daemon formatted strings
      */
-    public List<String> getDameonCallableStrings(){
+    public synchronized List<String> getDameonCallableStrings(){
         List<String> dameonStrings = new ArrayList<>();
         for(String s : values){
             dameonStrings.add(FUNCTION + "=" + s);

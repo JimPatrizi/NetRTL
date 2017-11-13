@@ -89,6 +89,14 @@ public class InputTextWatcher implements TextWatcher
                 Parameters.SCANNABLE_FREQUENCY.append(inputString);
             }
 
+            // Nothing specified
+            else if (inputString.isEmpty())
+            {
+                Parameters.FREQUENCY.resetValues();
+                Parameters.SCANNABLE_FREQUENCY.resetValues();
+                Parameters.FREQUENCY.append(Parameters.DEFAULT_SPECIFIER);
+            }
+
             // Standard frequency input
             else
             {
@@ -104,7 +112,15 @@ public class InputTextWatcher implements TextWatcher
         else if(type.equals(MainActivity.SAMPLE))
         {
             inputString = input.getText().toString();
-            Parameters.SAMPLE_RATE.replaceIndex(0, inputString);
+
+            if (inputString.isEmpty())
+            {
+                Parameters.SAMPLE_RATE.replaceIndex(0, Parameters.DEFAULT_SPECIFIER);
+            }
+            else
+            {
+                Parameters.SAMPLE_RATE.replaceIndex(0, inputString);
+            }
         }
 
         /**
@@ -113,7 +129,15 @@ public class InputTextWatcher implements TextWatcher
         else if(type.equals(MainActivity.RESAMPLE))
         {
             inputString = input.getText().toString();
-            Parameters.RESAMPLE_RATE.replaceIndex(0, inputString);
+
+            if (inputString.isEmpty())
+            {
+                Parameters.RESAMPLE_RATE.replaceIndex(0, Parameters.DEFAULT_SPECIFIER);
+            }
+            else
+            {
+                Parameters.RESAMPLE_RATE.replaceIndex(0, inputString);
+            }
         }
 
         /**
@@ -122,7 +146,15 @@ public class InputTextWatcher implements TextWatcher
         else if(type.equals(MainActivity.PPM))
         {
             inputString = input.getText().toString();
-            Parameters.PPM_ERROR.replaceIndex(0, inputString);
+
+            if (inputString.isEmpty())
+            {
+                Parameters.PPM_ERROR.replaceIndex(0, Parameters.DEFAULT_SPECIFIER);
+            }
+            else
+            {
+                Parameters.PPM_ERROR.replaceIndex(0, inputString);
+            }
         }
 
         /**
@@ -131,9 +163,16 @@ public class InputTextWatcher implements TextWatcher
         else if(type.equals(MainActivity.DELAY))
         {
             inputString = input.getText().toString();
-            Parameters.SQUELCH_DELAY.replaceIndex(0, inputString);
-        }
 
+            if (inputString.isEmpty())
+            {
+                Parameters.SQUELCH_DELAY.replaceIndex(0, Parameters.DEFAULT_SPECIFIER);
+            }
+            else
+            {
+                Parameters.SQUELCH_DELAY.replaceIndex(0, inputString);
+            }
+        }
     }
 }
 

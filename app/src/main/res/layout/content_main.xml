@@ -11,7 +11,9 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true"
+        android:background="#0a304e">
 
 
         <EditText
@@ -23,12 +25,12 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="84dp"
             android:ems="10"
-            android:hint="Samples per second"
+            android:hint="Parts per million"
             android:inputType="number"
             android:selectAllOnFocus="true"
-            android:text="0"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sample_rate" />
+            app:layout_constraintTop_toBottomOf="@+id/sample_rate"
+            android:gravity="center" />
 
         <EditText
             android:id="@+id/squelch_delay"
@@ -39,11 +41,12 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="136dp"
             android:ems="10"
+            android:hint="Squelch hits"
             android:inputType="text"
             android:selectAllOnFocus="true"
-            android:text="10"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sample_rate" />
+            app:layout_constraintTop_toBottomOf="@+id/sample_rate"
+            android:gravity="center" />
 
         <Spinner
             android:id="@+id/atan_spinner"
@@ -54,9 +57,10 @@
             android:layout_marginTop="100dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/oversamp_spinner" />
+
         <Spinner
             android:id="@+id/fir_spinner"
-            android:layout_width="78dp"
+            android:layout_width="115dp"
             android:layout_height="45dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
@@ -145,9 +149,9 @@
             android:hint="Samples per second"
             android:inputType="number"
             android:selectAllOnFocus="true"
-            android:text="2400000"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/deemp" />
+            app:layout_constraintTop_toBottomOf="@+id/deemp"
+            android:gravity="center"/>
 
         <EditText
             android:id="@+id/resample_rate"
@@ -161,9 +165,9 @@
             android:hint="Samples per second"
             android:inputType="number"
             android:selectAllOnFocus="true"
-            android:text="48000"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sample_rate" />
+            app:layout_constraintTop_toBottomOf="@+id/sample_rate"
+            android:gravity="center" />
 
 
         <EditText
@@ -176,7 +180,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:hint="Hz"
+            android:hint="Freq. in Hz"
             android:inputType="text"
             android:singleLine="false"
             android:visibility="visible"
@@ -189,7 +193,8 @@
             tools:layout_constraintBottom_creator="1"
             tools:layout_constraintLeft_creator="1"
             tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1" />
+            tools:layout_constraintTop_creator="1"
+            android:gravity="center" />
 
         <Button
             android:id="@+id/execute"
@@ -206,7 +211,9 @@
             app:layout_constraintLeft_toRightOf="@+id/hz_input"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:layout_constraintTop_creator="1" />
+            tools:layout_constraintTop_creator="1"
+            android:background="#37A010"
+            android:textColor="#000000" />
 
         <Button
             android:id="@+id/p1khz"
@@ -451,7 +458,7 @@
 
         <Spinner
             android:id="@+id/oversamp_spinner"
-            android:layout_width="78dp"
+            android:layout_width="115dp"
             android:layout_height="45dp"
             android:layout_marginRight="16dp"
             android:layout_marginTop="40dp"
@@ -469,7 +476,9 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/execute"
             tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1" />
+            tools:layout_constraintTop_creator="1"
+            android:background="#EB0707"
+            android:textColor="#000000" />
 
         <TextView
             android:id="@+id/fir_textview"

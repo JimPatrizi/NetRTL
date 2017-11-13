@@ -88,8 +88,13 @@ public class SeekBarChangeOnClickListener implements SeekBar.OnSeekBarChangeList
             } else {
                 VOLUME.append("" + progressChangedValue);
             }
+
             Toast.makeText(context, "System Volume =  " + progressChangedValue + "%",
                     Toast.LENGTH_SHORT).show();
+
+            // Send the volume to the server
+            MainActivity.getTcpClient().sendToServer(Parameters.VOLUME.getDameonCallableStrings().get(0));
+
             //textView.append(Integer.toString(progressChangedValue), 7, 10);
         }
         else if(type.equalsIgnoreCase("gain"))
