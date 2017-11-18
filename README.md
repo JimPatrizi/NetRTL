@@ -1,6 +1,6 @@
 # NetRTL
 
-This is a client Android application to be used with [rtlsdrd](https://github.com/bennettmsherman/rtlsdrd). This application controls rtlsdrd which is a daemon that sends commands to rtl_fm (rtl-sdr). 
+This is a client Android application to be used with [rtlsdrd](https://github.com/bennettmsherman/rtlsdrd). This application controls rtlsdrd which is a daemon that sends commands to rtl_fm (rtl-sdr). Developed for my Senior Project at Case Western Reserve University for my Computer Engineering Major.
 
 ## Getting Started
 
@@ -21,58 +21,36 @@ The following [path](https://github.com/JimPatrizi/NetRTL/tree/master/app/build/
 
 **Must have the ability to install unknown sources enabled in your security settings**
 
-Taje the apk file and open it on your specific Android device to install. 
+Take the apk file and open it on your specific Android device to install. 
 
-## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Android Studio](https://developer.android.com/studio/index.html) - Google's Free IDE to develop Android Apps
+
 
 ## Contributing
+**NOTE CONTRIBUTING IS NOT SETUP FOR GENERAL PUBLIC YET**
 
+
+###TODO CONTRIBUTIONS
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **James Patrizi** - *Initial author* - [Github - Homepage](https://github.com/JimPatrizi)
+* **Ben Sherman** - [Github - HomePage](https://github.com/bennettmsherman)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU GPL License - see the [COPYING](COPYING) file for details
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+* SEARS Undergraduate Lab at CWRU for the hardware resources to complete this senior project
+* John Gibbions for his help, time, and mentorship contributions to our project
+* David Kazdan  for his mentorship contributions to our project
+* RTL-SDR Open Source Project
