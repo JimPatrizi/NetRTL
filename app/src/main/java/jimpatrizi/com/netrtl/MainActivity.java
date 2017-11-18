@@ -1,3 +1,18 @@
+/*
+ * Created by James Donald Patrizi on 11/18/17 10:56 AM
+ * Copyright (c) 2017. All rights reserved.
+ * This application is distributed under the terms of the GNU General Public License
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ * Last modified: 11/13/17 9:51 AM
+ */
+
 package jimpatrizi.com.netrtl;
 
 import android.content.Context;
@@ -48,6 +63,8 @@ import static jimpatrizi.com.netrtl.Parameters.VOLUME;
  * @author Jim Patrizi
  * @version 1.0
  * @since 2017-11-11-2017
+ *
+ *
  */
 public class MainActivity extends AppCompatActivity
 {

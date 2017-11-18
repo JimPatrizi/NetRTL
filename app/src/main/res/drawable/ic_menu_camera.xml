@@ -1,3 +1,18 @@
+<!--
+  ~ Created by James Donald Patrizi on 11/18/17 10:59 AM
+  ~ Copyright (c) 2017. All rights reserved.
+  ~ This application is distributed under the terms of the GNU General Public License
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~
+  ~ Last modified: 9/30/17 12:00 PM
+  -->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
