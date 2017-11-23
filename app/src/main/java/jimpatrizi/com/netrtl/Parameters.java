@@ -21,6 +21,8 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jimpatrizi.com.netrtl.MainActivity.showGotItDialog;
+
 /**
  * Creates enums for all rtlsdrd dameon parameters
  * Created by jamespatrizi on 9/30/17.
