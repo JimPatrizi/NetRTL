@@ -21,7 +21,9 @@ The following [path](https://github.com/JimPatrizi/NetRTL/tree/master/app/build/
 
 Take the apk file and open it on your specific Android device to install. 
 
+## Documentation
 
+* [Documentation](https://docs.google.com/document/d/1BgXrzRg6_WVkYDuSj4wKe7Ec8Uuk8tGQGmw_-k5h-kM/edit?usp=sharing) hosted in Google Docs. Provides architecture overview of NetRTL and parameters of rtlsdrd.
 
 ## Built With
 
