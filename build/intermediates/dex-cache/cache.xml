@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/jamespatrizi/AndroidStudioProjects/NetRTL/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="492a00a3d186f0bda9d5143dcf94e2d1ca319883">
+        <dex dex="/Users/jamespatrizi/AndroidStudioProjects/NetRTL/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_c8dea37d3f7d496427e04d650d9b6f7479158c82/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/jamespatrizi/AndroidStudioProjects/NetRTL/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="3be78ebc2706b2e1fe2f12d5726887a92d6c183b">
+        <dex dex="/Users/jamespatrizi/AndroidStudioProjects/NetRTL/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_e1521a4df5b93cd924c5f50f257aa1d62cce6d9c/classes.dex" />
+    </item>
+
+</items>
