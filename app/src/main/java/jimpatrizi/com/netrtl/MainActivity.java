@@ -734,6 +734,7 @@ public class MainActivity extends AppCompatActivity
             tcpClient = new TcpClient(ipAddress, portNumber);
             //Init tcpClient thread
             tcpClientThread = new Thread(tcpClient, TcpClient.getDefaultThreadName());
+            tcpClientThread.setUncaughtExceptionHandler(getTcpClientExceptionHandler());
             //Start tcpClient in new thread, starts in run() because implements runnable
             tcpClientThread.start();
             //init response listener
@@ -1065,5 +1066,24 @@ public class MainActivity extends AppCompatActivity
         offsetSwitch = (Switch) findViewById(R.id.offset);
         offsetSwitch.setOnCheckedChangeListener(new SwitchOnCheckedChangeListener(OFFSET));
         enableOptionUiMatcher.add(OFFSET, offsetSwitch);
+    }
+
+    /**
+     * @return A function to handle when an uncaught exception is thrown from a
+     *         TcpClient or its inner threads.
+     */
+    private static Thread.UncaughtExceptionHandler getTcpClientExceptionHandler()
+    {
+        final Thread.UncaughtExceptionHandler uncaughtExceptionHandler = new Thread.UncaughtExceptionHandler()
+        {
+            @Override
+            public void uncaughtException(final Thread thread, final Throwable exception)
+            {
+                MainActivity.showGotItDialog("TcpClient exception!",
+                        "Make sure you have the proper IP set!\nException: " + exception.toString(),
+                        true);
+            }
+        };
+        return uncaughtExceptionHandler;
     }
 }
