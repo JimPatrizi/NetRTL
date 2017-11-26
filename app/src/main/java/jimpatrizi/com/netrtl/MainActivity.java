@@ -563,7 +563,8 @@ public class MainActivity extends AppCompatActivity
      */
     public static void goToSettingsActivity() {
         Intent settings = new Intent(mainActivity, SettingsPrefActivity.class);
-        sContext.startActivity(settings);
+        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mainActivity.getApplicationContext().startActivity(settings);
     }
 
     /**
