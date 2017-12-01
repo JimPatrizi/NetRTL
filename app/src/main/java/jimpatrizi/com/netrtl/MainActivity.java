@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -371,12 +372,6 @@ public class MainActivity extends AppCompatActivity
     public Context context;
 
     /**
-     * Static Context Reference
-     */
-    private static Context sContext;
-
-
-    /**
      * Main Activity Variable
      */
     private static MainActivity mainActivity;
@@ -485,9 +480,11 @@ public class MainActivity extends AppCompatActivity
         //sets view to the activity_main.xml layout file
         setContentView(R.layout.activity_main);
 
+        //lock app in portrait mode, no landscape xml is defined
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         //init context and mainActivity Variables
         context = getApplicationContext();
-        sContext = getApplicationContext();
         mainActivity = this;
 
         //Init Toolbar for menu/settings hamburger menu
