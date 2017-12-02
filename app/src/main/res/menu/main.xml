@@ -36,9 +36,9 @@
         android:orderInCategory="100"
         android:title="@string/pull_setting"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/default_settings"
-        android:orderInCategory="100"
-        android:title="@string/default_setting"
-        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/default_settings"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:title="@string/default_setting"-->
+        <!--app:showAsAction="never" />-->
 </menu>

@@ -602,14 +602,16 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.pull)
         {
             tcpClient.sendToServer("CMDS_IN_USE");
-        } else if (id == R.id.default_settings)
-        {
-            DefaultBuilder defaultBuilder = new DefaultBuilder();
-            defaultBuilder.setFrequency(91100000);
-            defaultBuilder.setModulationMode("fm");
-            String toDaemon = defaultBuilder.toString();
-            responseListener.parseCmdsInUseResponse(toDaemon);
         }
+        //TODO Default button to add to the hamburger menu
+//        else if (id == R.id.default_settings)
+//        {
+//            DefaultBuilder defaultBuilder = new DefaultBuilder();
+//            defaultBuilder.setFrequency(91100000);
+//            defaultBuilder.setModulationMode("fm");
+//            String toDaemon = defaultBuilder.toString();
+//            responseListener.parseCmdsInUseResponse(toDaemon);
+//        }
 
         return super.onOptionsItemSelected(item);
     }
